@@ -34,7 +34,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.notnoop.mpns.DeliveryClass;
 import com.notnoop.mpns.MpnsNotification;
+
 import static com.notnoop.mpns.internal.Utilities.ifNonNull;
 import static com.notnoop.mpns.internal.Utilities.escapeXml;
 
@@ -70,5 +72,45 @@ public class ToastNotification implements MpnsNotification {
 
     public List<? extends Entry<String, String>> getHttpHeaders() {
         return Collections.unmodifiableList(this.headers);
+    }
+
+    public static class Builder extends AbstractNotificationBuilder<Builder, ToastNotification> {
+        private String title, subtitle, parameter;
+
+        public Builder() {
+            super();
+            this.notificationType("toast");
+        }
+
+        public Builder title(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder subtitle(String subtitle) {
+            this.subtitle = subtitle;
+            return this;
+        }
+
+        public Builder parameter(String parameter) {
+            this.parameter = parameter;
+            return this;
+        }
+
+        @Override
+        protected int deliveryValueOf(DeliveryClass delivery) {
+            switch (delivery) {
+            case IMMEDIATELY:   return 2;
+            case WITHIN_450:    return 12;
+            case WITHIN_900:    return 22;
+            default:
+                throw new AssertionError("Unknown Value: " + delivery);
+            }
+        }
+
+        @Override
+        protected ToastNotification build() {
+            return new ToastNotification(title, subtitle, parameter, headers);
+        }
     }
 }

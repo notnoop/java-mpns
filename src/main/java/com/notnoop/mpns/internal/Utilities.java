@@ -88,7 +88,7 @@ public final class Utilities {
             default: sb.append(ch);
             }
         }
-        
+
         return sb.toString();
     }
 }

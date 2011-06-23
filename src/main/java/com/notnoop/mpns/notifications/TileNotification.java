@@ -34,7 +34,9 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.notnoop.mpns.DeliveryClass;
 import com.notnoop.mpns.MpnsNotification;
+
 import static com.notnoop.mpns.internal.Utilities.ifNonNull;
 import static com.notnoop.mpns.internal.Utilities.escapeXml;
 
@@ -82,5 +84,62 @@ public class TileNotification implements MpnsNotification {
 
     public List<? extends Entry<String, String>> getHttpHeaders() {
         return Collections.unmodifiableList(this.headers);
+    }
+
+    public static class Builder extends AbstractNotificationBuilder<Builder, TileNotification> {
+        private String backgroundImage, title, backBackgroundImage, backTitle, backContent;
+        private int count;
+
+        public Builder() {
+            super();
+            this.notificationType("token"); // TODO: Check whether it is "tile"
+        }
+
+        public Builder backgroundImage(String backgroundImage) {
+            this.backgroundImage = backgroundImage;
+            return this;
+        }
+
+        public Builder title(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public Builder backBackgroundImage(String backBackgroundImage) {
+            this.backBackgroundImage = backBackgroundImage;
+            return this;
+        }
+
+        public Builder backTitle(String backTitle) {
+            this.backTitle = backTitle;
+            return this;
+        }
+
+        public Builder backContent(String backContent) {
+            this.backContent = backContent;
+            return this;
+        }
+
+        public Builder count(int count) {
+            this.count = count;
+            return this;
+        }
+
+        @Override
+        protected int deliveryValueOf(DeliveryClass delivery) {
+            switch (delivery) {
+            case IMMEDIATELY:   return 1;
+            case WITHIN_450:    return 11;
+            case WITHIN_900:    return 21;
+            default:
+                throw new AssertionError("Unknown Value: " + delivery);
+            }
+        }
+
+        @Override
+        protected TileNotification build() {
+            return new TileNotification(backgroundImage, title, count,
+                    backBackgroundImage, backTitle, backContent,headers);
+        }
     }
 }

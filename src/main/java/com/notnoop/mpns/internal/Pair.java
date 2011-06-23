@@ -28,24 +28,32 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.notnoop.mpns;
+package com.notnoop.mpns.internal;
 
-import com.notnoop.mpns.notifications.RawNotification;
-import com.notnoop.mpns.notifications.TileNotification;
-import com.notnoop.mpns.notifications.ToastNotification;
+import java.util.Map;
 
-public class MpnsNotificationBuilder {
-    public MpnsNotificationBuilder() {}
+public class Pair<K, V> implements Map.Entry<K, V> {
+    public final K key;
+    public final V value;
 
-    public TileNotification.Builder tile() {
-        return new TileNotification.Builder();
+    public Pair(K k, V v) {
+        this.key = k;
+        this.value = v;
     }
 
-    public ToastNotification.Builder toast() {
-        return new ToastNotification.Builder();
+    public K getKey() {
+        return key;
     }
 
-    public RawNotification.Builder raw() {
-        return new RawNotification.Builder();
+    public V getValue() {
+        return value;
+    }
+
+    public V setValue(V value) {
+        throw new UnsupportedOperationException("Pair is immutable!");
+    }
+
+    public static <K, V> Pair<K, V> of(K k, V v) {
+        return new Pair<K, V>(k, v);
     }
 }

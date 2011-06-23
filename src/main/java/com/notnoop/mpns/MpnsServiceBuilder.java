@@ -40,7 +40,6 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.notnoop.mpns.internal.*;
-import com.notnoop.mpns.exceptions.RuntimeIOException;
 
 /**
  * The class is used to create instances of {@link ApnsService}.

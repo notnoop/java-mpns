@@ -30,22 +30,6 @@
  */
 package com.notnoop.mpns;
 
-import com.notnoop.mpns.notifications.RawNotification;
-import com.notnoop.mpns.notifications.TileNotification;
-import com.notnoop.mpns.notifications.ToastNotification;
-
-public class MpnsNotificationBuilder {
-    public MpnsNotificationBuilder() {}
-
-    public TileNotification.Builder tile() {
-        return new TileNotification.Builder();
-    }
-
-    public ToastNotification.Builder toast() {
-        return new ToastNotification.Builder();
-    }
-
-    public RawNotification.Builder raw() {
-        return new RawNotification.Builder();
-    }
+public enum DeliveryClass {
+    IMMEDIATELY, WITHIN_450, WITHIN_900;
 }

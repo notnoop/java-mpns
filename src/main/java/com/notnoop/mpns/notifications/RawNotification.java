@@ -34,6 +34,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
+import com.notnoop.mpns.DeliveryClass;
 import com.notnoop.mpns.MpnsNotification;
 
 public class RawNotification implements MpnsNotification {
@@ -54,5 +55,35 @@ public class RawNotification implements MpnsNotification {
 
     public List<? extends Entry<String, String>> getHttpHeaders() {
         return Collections.unmodifiableList(this.headers);
+    }
+
+    public static class Builder extends AbstractNotificationBuilder<Builder, RawNotification> {
+        private String xml;
+
+        public Builder() {
+            super();
+            this.notificationType("raw");
+        }
+
+        public Builder xml(String xml) {
+            this.xml = xml;
+            return this;
+        }
+
+        @Override
+        protected int deliveryValueOf(DeliveryClass delivery) {
+            switch (delivery) {
+            case IMMEDIATELY:   return 3;
+            case WITHIN_450:    return 13;
+            case WITHIN_900:    return 23;
+            default:
+                throw new AssertionError("Unknown Value: " + delivery);
+            }
+        }
+
+        @Override
+        protected RawNotification build() {
+            return new RawNotification(xml, headers);
+        }
     }
 }

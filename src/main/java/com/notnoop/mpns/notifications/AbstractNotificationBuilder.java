@@ -28,24 +28,40 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.notnoop.mpns;
+package com.notnoop.mpns.notifications;
 
-import com.notnoop.mpns.notifications.RawNotification;
-import com.notnoop.mpns.notifications.TileNotification;
-import com.notnoop.mpns.notifications.ToastNotification;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
 
-public class MpnsNotificationBuilder {
-    public MpnsNotificationBuilder() {}
+import com.notnoop.mpns.DeliveryClass;
+import com.notnoop.mpns.internal.Pair;
 
-    public TileNotification.Builder tile() {
-        return new TileNotification.Builder();
+@SuppressWarnings("unchecked")
+abstract class AbstractNotificationBuilder<A extends AbstractNotificationBuilder<A, B>, B> {
+    protected List<Entry<String, String>> headers = new ArrayList<Entry<String, String>>();
+    
+    public A messageId(String messageId) {
+        this.headers.add(Pair.of("X-MessageId", messageId));
+        return (A)this;
     }
 
-    public ToastNotification.Builder toast() {
-        return new ToastNotification.Builder();
+    public A notificationClass(DeliveryClass delivery) {
+        this.headers.add(Pair.of("X-NotificationClass", String.valueOf(deliveryValueOf(delivery))));
+        return (A)this;
     }
 
-    public RawNotification.Builder raw() {
-        return new RawNotification.Builder();
+    public A notificationType(String type) {
+        this.headers.add(Pair.of("X-WindowsPhone-Target", type));
+        return (A)this;
     }
+
+    public A callbackUri(String callbackUri) {
+        this.headers.add(Pair.of("X-CallbackURI", callbackUri));
+        return (A)this;
+    }
+
+    protected abstract int deliveryValueOf(DeliveryClass delivery);
+    
+    protected abstract B build();
 }
