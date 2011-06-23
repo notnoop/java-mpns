@@ -4,7 +4,6 @@
   <artifactId>mpns</artifactId>
   <name>Java Microsoft Push Notification Service Library</name>
   <version>0.0.1-SNAPSHOT</version>
-  <description>Library to send Microsoft Push Notification</description>
 
     <!-- Inherit the Sonatype OSS deployment configuration -->
     <!--
@@ -117,16 +116,23 @@
 
     <dependencies>
         <dependency>
-            <groupId>ch.qos.logback</groupId>
-            <artifactId>logback-classic</artifactId>
-            <version>0.9.24</version>
-            <scope>test</scope>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.1.1</version>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>1.6.1</version>
+        </dependency>
+         
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>0.9.24</version>
+            <scope>test</scope>
         </dependency>
 
         <dependency>
