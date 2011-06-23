@@ -37,6 +37,8 @@ import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.params.HttpConnectionParams;
+import org.apache.http.params.HttpParams;
 
 import com.notnoop.mpns.internal.*;
 
@@ -62,6 +64,7 @@ public class MpnsServiceBuilder {
     private boolean isQueued = false;
     private HttpHost proxy = null;
     private HttpClient httpClient = null;
+    private int timeout = -1;
 
     /**
      * Constructs a new instance of {@code MpnsServiceBuilder}
@@ -148,6 +151,17 @@ public class MpnsServiceBuilder {
     }
 
     /**
+     * Sets the timeout for the connection
+     *
+     * @param   timeout     the time out period in millis
+     * @return this
+     */
+    public MpnsServiceBuilder timeout(int timeout) {
+        this.timeout = timeout;
+        return this;
+    }
+
+    /**
      * Returns a fully initialized instance of {@link MpnsService},
      * according to the requested settings.
      *
@@ -168,6 +182,12 @@ public class MpnsServiceBuilder {
 
         if (proxy != null) {
             client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+        }
+
+        if (timeout > 0) {
+            HttpParams params = client.getParams();
+            HttpConnectionParams.setConnectionTimeout(params, timeout);
+            HttpConnectionParams.setSoTimeout(params, timeout);
         }
 
         // Configure service
