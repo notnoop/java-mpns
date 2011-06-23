@@ -35,9 +35,12 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.UnsupportedEncodingException;
 
 public final class Utilities {
     private Utilities() { throw new AssertionError("Uninstantiable class"); }
+
+    public static String XML_CONTENT_TYPE = "text/xml";
 
     public static String readFully(InputStream is) {
         final char[] buffer = new char[0x10000];
@@ -90,5 +93,13 @@ public final class Utilities {
         }
 
         return sb.toString();
+    }
+
+    public static byte[] toUTF8(String content) {
+        try {
+            return content.getBytes("UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            throw new AssertionError("The world is coming to an end!  No UTF-8 support");
+        }
     }
 }

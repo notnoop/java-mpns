@@ -42,7 +42,7 @@ public interface MpnsNotification {
      * Returns the binary representation of the payload.
      *
      */
-    public String getRequestBody();
+    public byte[] getRequestBody();
 
     /**
      * Returns the identifier of the current message.  The

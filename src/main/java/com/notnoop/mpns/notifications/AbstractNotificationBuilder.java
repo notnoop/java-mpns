@@ -114,6 +114,17 @@ import com.notnoop.mpns.internal.Pair;
         return (A)this;
     }
 
+    /**
+     * Sets the notification body content type
+     *
+     * @param contentType   the content type of the body
+     * @return  this
+     */
+    protected A contentType(String contentType) {
+        this.headers.add(Pair.of("Content-Type", contentType));
+        return (A)this;
+    }
+
     protected abstract int deliveryValueOf(DeliveryClass delivery);
 
     public abstract B build();

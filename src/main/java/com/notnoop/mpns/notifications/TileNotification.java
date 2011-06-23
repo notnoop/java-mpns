@@ -36,6 +36,7 @@ import java.util.Map.Entry;
 
 import com.notnoop.mpns.DeliveryClass;
 import com.notnoop.mpns.MpnsNotification;
+import com.notnoop.mpns.internal.Utilities;
 
 import static com.notnoop.mpns.internal.Utilities.ifNonNull;
 import static com.notnoop.mpns.internal.Utilities.escapeXml;
@@ -65,7 +66,7 @@ public class TileNotification implements MpnsNotification {
         this.headers = headers;
     }
 
-    public String getRequestBody() {
+    public byte[] getRequestBody() {
         String tileMessage =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
             "<wp:Notification xmlns:wp=\"WPNotification\">" +
@@ -79,7 +80,7 @@ public class TileNotification implements MpnsNotification {
            "</wp:Tile> " +
         "</wp:Notification>";
 
-        return tileMessage;
+        return Utilities.toUTF8(tileMessage);
     }
 
     public List<? extends Entry<String, String>> getHttpHeaders() {
@@ -92,6 +93,7 @@ public class TileNotification implements MpnsNotification {
 
         public Builder() {
             super("token"); // TODO: Check whether it is "tile"
+            contentType(Utilities.XML_CONTENT_TYPE);
         }
 
         public Builder backgroundImage(String backgroundImage) {

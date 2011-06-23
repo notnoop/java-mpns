@@ -36,21 +36,22 @@ import java.util.Map.Entry;
 
 import com.notnoop.mpns.DeliveryClass;
 import com.notnoop.mpns.MpnsNotification;
+import com.notnoop.mpns.internal.Utilities;
 
 public class RawNotification implements MpnsNotification {
-    private final String xml;
+    private final byte[] body;
 
     private final List<? extends Entry<String, String>> headers;
 
-    public RawNotification(String xml,
+    public RawNotification(byte[] body,
             List<? extends Entry<String, String>> headers) {
-        this.xml = xml;
+        this.body = body;
 
         this.headers = headers;
     }
 
-    public String getRequestBody() {
-        return xml;
+    public byte[] getRequestBody() {
+        return body;
     }
 
     public List<? extends Entry<String, String>> getHttpHeaders() {
@@ -58,14 +59,21 @@ public class RawNotification implements MpnsNotification {
     }
 
     public static class Builder extends AbstractNotificationBuilder<Builder, RawNotification> {
-        private String xml;
+        private byte[] body;
 
         public Builder() {
             super("raw");
         }
 
-        public Builder xml(String xml) {
-            this.xml = xml;
+        public Builder body(String body) {
+            this.body = Utilities.toUTF8(body);
+            return this;
+        }
+
+        public Builder body(byte[] body) {
+            byte[] copy = new byte[body.length];
+            System.arraycopy(body, 0, copy, 0, body.length);
+            this.body = body;
             return this;
         }
 
@@ -82,7 +90,7 @@ public class RawNotification implements MpnsNotification {
 
         @Override
         public RawNotification build() {
-            return new RawNotification(xml, headers);
+            return new RawNotification(body, headers);
         }
     }
 }

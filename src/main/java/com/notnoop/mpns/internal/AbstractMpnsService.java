@@ -30,14 +30,12 @@
  */
 package com.notnoop.mpns.internal;
 
-import java.io.UnsupportedEncodingException;
 import java.util.Collection;
 import java.util.Map.Entry;
 
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.protocol.HTTP;
+import org.apache.http.entity.ByteArrayEntity;
 
 import com.notnoop.mpns.MpnsNotification;
 import com.notnoop.mpns.MpnsService;
@@ -51,14 +49,10 @@ public abstract class AbstractMpnsService implements MpnsService {
         this.httpClient = httpClient;
     }
 
-    protected HttpPost postMessage(String subscriptionUri, String requestBody, Collection<? extends Entry<String, String>> headers) {
+    protected HttpPost postMessage(String subscriptionUri, byte[] requestBody,
+            Collection<? extends Entry<String, String>> headers) {
         HttpPost method = new HttpPost(subscriptionUri);
-        try {
-            method.setEntity(new StringEntity(requestBody,
-                    "text/xml", HTTP.UTF_8));
-        } catch (UnsupportedEncodingException e) {
-            throw new AssertionError("UTF-8 isn't supported!!!");
-        }
+        method.setEntity(new ByteArrayEntity(requestBody));
 
         for (Entry<String, String> header: headers) {
             method.addHeader(header.getKey(), header.getValue());
@@ -72,7 +66,7 @@ public abstract class AbstractMpnsService implements MpnsService {
     public void push(String subscriptionUri, String payload,
             Collection<? extends Entry<String, String>> headers)
             throws NetworkIOException {
-        this.push(postMessage(subscriptionUri, payload, headers));
+        this.push(postMessage(subscriptionUri, Utilities.toUTF8(payload), headers));
     }
 
     public void push(String subscriptionUri, MpnsNotification message)

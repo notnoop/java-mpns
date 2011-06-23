@@ -36,6 +36,7 @@ import java.util.Map.Entry;
 
 import com.notnoop.mpns.DeliveryClass;
 import com.notnoop.mpns.MpnsNotification;
+import com.notnoop.mpns.internal.Utilities;
 
 import static com.notnoop.mpns.internal.Utilities.ifNonNull;
 import static com.notnoop.mpns.internal.Utilities.escapeXml;
@@ -56,7 +57,7 @@ public class ToastNotification implements MpnsNotification {
         this.headers = headers;
     }
 
-    public String getRequestBody() {
+    public byte[] getRequestBody() {
         String message =
             "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
             "<wp:Notification xmlns:wp=\"WPNotification\">" +
@@ -67,7 +68,7 @@ public class ToastNotification implements MpnsNotification {
                "</wp:Toast> " +
             "</wp:Notification>";
 
-        return message;
+        return Utilities.toUTF8(message);
     }
 
     public List<? extends Entry<String, String>> getHttpHeaders() {
@@ -79,6 +80,7 @@ public class ToastNotification implements MpnsNotification {
 
         public Builder() {
             super("toast");
+            contentType(Utilities.XML_CONTENT_TYPE);
         }
 
         public Builder title(String title) {
