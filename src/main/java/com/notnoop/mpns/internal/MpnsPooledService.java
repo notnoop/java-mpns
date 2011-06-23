@@ -39,10 +39,11 @@ import org.apache.http.client.methods.HttpPost;
 import com.notnoop.mpns.MpnsService;
 
 public class MpnsPooledService extends AbstractMpnsService implements MpnsService {
+    private final HttpClient httpClient;
     private final ExecutorService executor;
 
-    public MpnsPooledService(HttpClient client, ExecutorService executor) {
-        super(client);
+    public MpnsPooledService(HttpClient httpClient, ExecutorService executor) {
+        this.httpClient = httpClient;
         this.executor = executor;
     }
 
@@ -60,10 +61,10 @@ public class MpnsPooledService extends AbstractMpnsService implements MpnsServic
         });
     }
 
-
-
     @Override
     public void stop() {
+        super.stop();
+        this.httpClient.getConnectionManager().shutdown();
         this.executor.shutdown();
     }
 

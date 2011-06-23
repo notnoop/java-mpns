@@ -30,37 +30,65 @@
  */
 package com.notnoop.mpns.internal;
 
-import java.io.IOException;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 
 import com.notnoop.mpns.MpnsService;
-import com.notnoop.mpns.exceptions.NetworkIOException;
 
-public class MpnsServiceImpl extends AbstractMpnsService implements MpnsService {
-    protected final HttpClient httpClient;
+public class MpnsQueuedService extends AbstractMpnsService implements MpnsService {
 
-    public MpnsServiceImpl(HttpClient httpClient) {
-        this.httpClient = httpClient;
+    private AbstractMpnsService service;
+    private BlockingQueue<HttpPost> queue;
+    private AtomicBoolean started = new AtomicBoolean(false);
+
+    public MpnsQueuedService(AbstractMpnsService service) {
+        this.service = service;
+        this.queue = new LinkedBlockingQueue<HttpPost>();
     }
 
     @Override
-    protected void push(HttpPost request) {
-        try {
-            HttpResponse response = httpClient.execute(request);
-            assert response != null;
-        } catch (ClientProtocolException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new NetworkIOException(e);
+    protected void push(final HttpPost request) {
+        if (!started.get()) {
+            throw new IllegalStateException("Service hans't been started or was closed");
         }
+
+        queue.add(request);
     }
 
+    private Thread thread;
+    private volatile boolean shouldContinue;
+
+    public void start() {
+        if (started.getAndSet(true)) {
+            // Should we throw a runtime IllegalStateException here?
+            return;
+        }
+
+        service.start();
+        shouldContinue = true;
+        thread = new Thread() {
+            public void run() {
+                while (shouldContinue) {
+                    try {
+                        HttpPost post = queue.take();
+                        service.push(post);
+                    } catch (InterruptedException e) {}
+                }
+            }
+        };
+        thread.start();
+    }
+
+
+    @Override
     public void stop() {
-        this.httpClient.getConnectionManager().shutdown();
+        started.set(false);
+        shouldContinue = false;
+        thread.interrupt();
+        service.stop();
     }
 
 }

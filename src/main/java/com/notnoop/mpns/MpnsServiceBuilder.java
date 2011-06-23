@@ -144,22 +144,26 @@ public class MpnsServiceBuilder {
      */
     public MpnsService build() {
         checkInitialization();
+        AbstractMpnsService service;
 
         if (pooledMax == 1) {
             HttpClient client = new DefaultHttpClient();
-            return new MpnsServiceImpl(client);
+            service = new MpnsServiceImpl(client);
         } else {
             HttpClient client = new DefaultHttpClient(Utilities.poolManager(pooledMax));
-            return new MpnsPooledService(client, executor);
+            service = new MpnsPooledService(client, executor);
         }
+
+        if (isQueued) {
+            service = new MpnsQueuedService(service);
+        }
+
+        return service;
     }
 
     private void checkInitialization() {
         if (pooledMax != 1 && executor == null) {
             throw new IllegalStateException("Executor service is required for pooled connections");
-        }
-        if (this.isQueued) {
-            throw new RuntimeException("Queued Connections not supported yet");
         }
         if (this.proxy != null) {
             throw new RuntimeException("Proxies are not supported yet");

@@ -33,7 +33,6 @@ package com.notnoop.mpns.internal;
 import java.util.Collection;
 import java.util.Map.Entry;
 
-import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ByteArrayEntity;
 
@@ -42,12 +41,6 @@ import com.notnoop.mpns.MpnsService;
 import com.notnoop.mpns.exceptions.NetworkIOException;
 
 public abstract class AbstractMpnsService implements MpnsService {
-
-    protected final HttpClient httpClient;
-
-    protected AbstractMpnsService(HttpClient httpClient) {
-        this.httpClient = httpClient;
-    }
 
     protected HttpPost postMessage(String subscriptionUri, byte[] requestBody,
             Collection<? extends Entry<String, String>> headers) {
@@ -77,7 +70,5 @@ public abstract class AbstractMpnsService implements MpnsService {
 
     public void start() {}
 
-    public void stop() {
-        this.httpClient.getConnectionManager().shutdown();
-    }
+    public void stop() {}
 }
