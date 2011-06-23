@@ -37,6 +37,7 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.regex.Pattern;
 
 public final class Utilities {
     private Utilities() { throw new AssertionError("Uninstantiable class"); }
@@ -69,4 +70,28 @@ public final class Utilities {
         return cm;
     }
 
+    public static String ifNonNull(Object cond, String value) {
+        return cond != null ? value : "";
+    }
+
+    public static String escapeXml(String value) {
+        if (value == null) {
+            return null;
+        }
+
+        StringBuilder sb = new StringBuilder(value.length());
+        for (int i = 0; i < value.length(); ++i) {
+            char ch = value.charAt(i);
+            switch (ch) {
+            case '&': sb.append("&amp;"); break;
+            case '<': sb.append("&lt;"); break;
+            case '>': sb.append("&gt;"); break;
+            case '"': sb.append("&quot;"); break;
+            case '\'': sb.append("&apos"); break;
+            default: sb.append(ch);
+            }
+        }
+        
+        return sb.toString();
+    }
 }
