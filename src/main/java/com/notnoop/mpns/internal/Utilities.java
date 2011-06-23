@@ -40,6 +40,9 @@ import java.io.UnsupportedEncodingException;
 public final class Utilities {
     private Utilities() { throw new AssertionError("Uninstantiable class"); }
 
+    /**
+     * The content type "text/xml"
+     */
     public static String XML_CONTENT_TYPE = "text/xml";
 
     public static String readFully(InputStream is) {
@@ -70,6 +73,10 @@ public final class Utilities {
         return cm;
     }
 
+    /**
+     * Returns {@cond value} is the {@code cond} is non-null; otherwise
+     * returns an empty String.
+     */
     public static String ifNonNull(Object cond, String value) {
         return cond != null ? value : "";
     }
@@ -87,7 +94,7 @@ public final class Utilities {
             case '<': sb.append("&lt;"); break;
             case '>': sb.append("&gt;"); break;
             case '"': sb.append("&quot;"); break;
-            case '\'': sb.append("&apos"); break;
+            case '\'': sb.append("&apos;"); break;
             default: sb.append(ch);
             }
         }
