@@ -30,13 +30,12 @@
  */
 package com.notnoop.mpns;
 
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
+import org.apache.http.conn.params.ConnRoutePNames;
 import org.apache.http.impl.client.DefaultHttpClient;
 
 import com.notnoop.mpns.internal.*;
@@ -61,7 +60,8 @@ public class MpnsServiceBuilder {
     private ExecutorService executor = null;
 
     private boolean isQueued = false;
-    private Proxy proxy = null;
+    private HttpHost proxy = null;
+    private HttpClient httpClient = null;
 
     /**
      * Constructs a new instance of {@code MpnsServiceBuilder}
@@ -69,39 +69,50 @@ public class MpnsServiceBuilder {
     public MpnsServiceBuilder() { }
 
     /**
-     * Specify the address of the SOCKS proxy the connection should
+     * Specify the address of the HTTP proxy the connection should
      * use.
      *
      * <p>Read the <a href="http://java.sun.com/javase/6/docs/technotes/guides/net/proxies.html">
      * Java Networking and Proxies</a> guide to understand the
      * proxies complexity.
      *
-     * <p>Be aware that this method only handles SOCKS proxies, not
-     * HTTPS proxies.  Use {@link #withProxy(Proxy)} instead.
-     *
-     * @param host  the hostname of the SOCKS proxy
-     * @param port  the port of the SOCKS proxy server
+     * @param host  the hostname of the HTTP proxy
+     * @param port  the port of the HTTP proxy server
      * @return  this
      */
-    public MpnsServiceBuilder withSocksProxy(String host, int port) {
-        Proxy proxy = new Proxy(Proxy.Type.SOCKS,
-                new InetSocketAddress(host, port));
-        return withProxy(proxy);
+    public MpnsServiceBuilder withHttpProxy(String host, int port) {
+        this.proxy = new HttpHost(host, port);
+        return this;
     }
 
+    // TODO: Support Proxy again
+//    /**
+//     * Specify the proxy to be used to establish the connections
+//     * to Microsoft Servers
+//     *
+//     * <p>Read the <a href="http://java.sun.com/javase/6/docs/technotes/guides/net/proxies.html">
+//     * Java Networking and Proxies</a> guide to understand the
+//     * proxies complexity.
+//     *
+//     * @param proxy the proxy object to be used to create connections
+//     * @return  this
+//     */
+//    public MpnsServiceBuilder withProxy(Proxy proxy) {
+//        this.proxy = proxy;
+//        return this;
+//    }
+
     /**
-     * Specify the proxy to be used to establish the connections
-     * to Microsoft Servers
+     * Sets the HttpClient instance along with any configuration
      *
-     * <p>Read the <a href="http://java.sun.com/javase/6/docs/technotes/guides/net/proxies.html">
-     * Java Networking and Proxies</a> guide to understand the
-     * proxies complexity.
+     * NOTE: This is an advanced option that should be probably be used as a
+     * last resort.
      *
-     * @param proxy the proxy object to be used to create connections
-     * @return  this
+     * @param httpClient    the httpClient to be used
+     * @return this
      */
-    public MpnsServiceBuilder withProxy(Proxy proxy) {
-        this.proxy = proxy;
+    public MpnsServiceBuilder withHttpClient(HttpClient httpClient) {
+        this.httpClient = httpClient;
         return this;
     }
 
@@ -144,13 +155,26 @@ public class MpnsServiceBuilder {
      */
     public MpnsService build() {
         checkInitialization();
-        AbstractMpnsService service;
 
+        // Client Configuration
+        HttpClient client;
+        if (httpClient != null) {
+            client = httpClient;
+        } else if (pooledMax == 1) {
+            client = new DefaultHttpClient();
+        } else {
+            client = new DefaultHttpClient(Utilities.poolManager(pooledMax));
+        }
+
+        if (proxy != null) {
+            client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+        }
+
+        // Configure service
+        AbstractMpnsService service;
         if (pooledMax == 1) {
-            HttpClient client = new DefaultHttpClient();
             service = new MpnsServiceImpl(client);
         } else {
-            HttpClient client = new DefaultHttpClient(Utilities.poolManager(pooledMax));
             service = new MpnsPooledService(client, executor);
         }
 
@@ -158,15 +182,13 @@ public class MpnsServiceBuilder {
             service = new MpnsQueuedService(service);
         }
 
+        service.start();
         return service;
     }
 
     private void checkInitialization() {
         if (pooledMax != 1 && executor == null) {
             throw new IllegalStateException("Executor service is required for pooled connections");
-        }
-        if (this.proxy != null) {
-            throw new RuntimeException("Proxies are not supported yet");
         }
     }
 }
