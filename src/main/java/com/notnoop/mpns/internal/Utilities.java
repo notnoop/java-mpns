@@ -32,12 +32,9 @@ package com.notnoop.mpns.internal;
 
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 
-
-
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.regex.Pattern;
 
 public final class Utilities {
     private Utilities() { throw new AssertionError("Uninstantiable class"); }

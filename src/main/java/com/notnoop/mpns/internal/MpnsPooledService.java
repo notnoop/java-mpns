@@ -52,6 +52,7 @@ public class MpnsPooledService extends AbstractMpnsService implements MpnsServic
             public void run() {
                 try {
                     HttpResponse response = httpClient.execute(request);
+                    assert response != null;
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

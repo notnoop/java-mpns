@@ -49,6 +49,7 @@ public class MpnsServiceImpl extends AbstractMpnsService implements MpnsService 
     protected void push(HttpPost request) {
         try {
             HttpResponse response = httpClient.execute(request);
+            assert response != null;
         } catch (ClientProtocolException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
