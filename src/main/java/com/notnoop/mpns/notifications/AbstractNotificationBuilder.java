@@ -35,27 +35,80 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import com.notnoop.mpns.DeliveryClass;
+import com.notnoop.mpns.MpnsNotification;
 import com.notnoop.mpns.internal.Pair;
 
+/**
+ * An abstract notification builder for the common header settings
+ *
+ * @param <A>   the concrete type of the builder
+ * @param <B>   the type of the generated message
+ */
 @SuppressWarnings("unchecked")
-abstract class AbstractNotificationBuilder<A extends AbstractNotificationBuilder<A, B>, B> {
+/*package-protected*/ abstract class AbstractNotificationBuilder<A extends AbstractNotificationBuilder<A, B>, B extends MpnsNotification> {
     protected List<Entry<String, String>> headers = new ArrayList<Entry<String, String>>();
 
+    protected AbstractNotificationBuilder(String type) {
+        notificationType(type);
+    }
+
+    /**
+     * Sets the message UUID.
+     *
+     * The message UUID is optional application-specific identifier for
+     * book-keeping and associate it with the response.
+     *
+     * @param messageId notification message ID
+     * @return  this
+     */
     public A messageId(String messageId) {
         this.headers.add(Pair.of("X-MessageId", messageId));
         return (A)this;
     }
 
+    /**
+     * Sets the notification batching interval, indicating when the notification
+     * should be delivered to the device
+     *
+     * @param delivery  batching interval
+     * @return  this
+     */
     public A notificationClass(DeliveryClass delivery) {
         this.headers.add(Pair.of("X-NotificationClass", String.valueOf(deliveryValueOf(delivery))));
         return (A)this;
     }
 
+
+    /**
+     * Sets the type of the push notification being sent.
+     *
+     * As of Windows Phone OS 7.0, the supported types are:
+     * <ul>
+     *  <li>token (for Tile messages)</li>
+     *  <li>toast</li>
+     *  <li>raw</li>
+     * </ul>
+     *
+     * This method should probably not be called directly, as the concrete
+     * builder class will set the appropriate notification type.
+     *
+     * @param type  the notification type
+     * @return  this
+     */
     public A notificationType(String type) {
         this.headers.add(Pair.of("X-WindowsPhone-Target", type));
         return (A)this;
     }
 
+    /**
+     * Sets the notification channel URI that the registered callback message
+     * will be sent to.
+     *
+     * When using an authenticated web service, this parameter is required.
+     *
+     * @param callbackUri   the notification channel URI
+     * @return  this
+     */
     public A callbackUri(String callbackUri) {
         this.headers.add(Pair.of("X-CallbackURI", callbackUri));
         return (A)this;
@@ -63,5 +116,5 @@ abstract class AbstractNotificationBuilder<A extends AbstractNotificationBuilder
 
     protected abstract int deliveryValueOf(DeliveryClass delivery);
 
-    protected abstract B build();
+    public abstract B build();
 }

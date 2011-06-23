@@ -30,6 +30,29 @@
  */
 package com.notnoop.mpns;
 
+/**
+ * Determines the batch interval indicating when the push notification
+ * should be sent to the application.
+ *
+ * The default value, for a new notification is {@code IMMEDIATELY}.
+ *
+ */
 public enum DeliveryClass {
-    IMMEDIATELY, WITHIN_450, WITHIN_900;
+
+    /**
+     * Indicates that the push notification should be delivered immediately
+     */
+    IMMEDIATELY,
+
+    /**
+     * Indicates that the push notification should be delivered within 450
+     * seconds (7.5 minutes)
+     */
+    WITHIN_450,
+
+    /**
+     * Indicates that the push notification should be delivered within 900
+     * seconds (15 minutes)
+     */
+    WITHIN_900;
 }

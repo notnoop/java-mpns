@@ -91,8 +91,7 @@ public class TileNotification implements MpnsNotification {
         private int count;
 
         public Builder() {
-            super();
-            this.notificationType("token"); // TODO: Check whether it is "tile"
+            super("token"); // TODO: Check whether it is "tile"
         }
 
         public Builder backgroundImage(String backgroundImage) {
@@ -137,7 +136,7 @@ public class TileNotification implements MpnsNotification {
         }
 
         @Override
-        protected TileNotification build() {
+        public TileNotification build() {
             return new TileNotification(backgroundImage, title, count,
                     backBackgroundImage, backTitle, backContent,headers);
         }

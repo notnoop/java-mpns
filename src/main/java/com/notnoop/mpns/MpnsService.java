@@ -36,14 +36,12 @@ import java.util.Map;
 import com.notnoop.mpns.exceptions.NetworkIOException;
 
 /**
- * Represents the connection and interface to the Apple APNS servers.
+ * Represents the connection and interface to the Microsoft MPNS servers.
  *
- * The service is created by {@link ApnsServiceBuilder} like:
+ * The service is created by {@link MpnsServiceBuilder} like:
  *
  * <pre>
- *   ApnsService = APNS.newService()
- *                  .withCert("/path/to/certificate.p12", "MyCertPassword")
- *                  .withSandboxDestination()
+ *   MpnsService service = MPNS.newService()
  *                  .build()
  * </pre>
  */

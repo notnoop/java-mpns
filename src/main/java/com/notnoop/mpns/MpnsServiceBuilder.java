@@ -42,20 +42,18 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import com.notnoop.mpns.internal.*;
 
 /**
- * The class is used to create instances of {@link ApnsService}.
+ * The class is used to create instances of {@link MpnsService}.
  *
  * Note that this class is not synchronized.  If multiple threads access a
- * {@code ApnsServiceBuilder} instance concurrently, and at least on of the
+ * {@code MpnsServiceBuilder} instance concurrently, and at least on of the
  * threads modifies one of the attributes structurally, it must be
  * synchronized externally.
  *
- * Starting a new {@code ApnsService} is easy:
+ * Starting a new {@code MpnsService} is easy:
  *
  * <pre>
- *   ApnsService = APNS.newService()
- *    .withCert("/path/to/certificate.p12", "MyCertPassword")
- *    .withSandboxDestination()
- *    .build()
+ *   MpnsService service = MPNS.newService()
+ *                  .build()
  * </pre>
  */
 public class MpnsServiceBuilder {
@@ -66,7 +64,7 @@ public class MpnsServiceBuilder {
     private Proxy proxy = null;
 
     /**
-     * Constructs a new instance of {@code ApnsServiceBuilder}
+     * Constructs a new instance of {@code MpnsServiceBuilder}
      */
     public MpnsServiceBuilder() { }
 
@@ -93,7 +91,7 @@ public class MpnsServiceBuilder {
 
     /**
      * Specify the proxy to be used to establish the connections
-     * to Apple Servers
+     * to Microsoft Servers
      *
      * <p>Read the <a href="http://java.sun.com/javase/6/docs/technotes/guides/net/proxies.html">
      * Java Networking and Proxies</a> guide to understand the
@@ -110,11 +108,6 @@ public class MpnsServiceBuilder {
     /**
      * Constructs a pool of connections to the notification servers.
      *
-     * Apple servers recommend using a pooled connection up to
-     * 15 concurrent persistent connections to the gateways.
-     *
-     * Note: This option has no effect when using non-blocking
-     * connections.
      */
     public MpnsServiceBuilder asPool(int maxConnections) {
         return asPool(Executors.newFixedThreadPool(maxConnections), maxConnections);
@@ -122,12 +115,6 @@ public class MpnsServiceBuilder {
 
     /**
      * Constructs a pool of connections to the notification servers.
-     *
-     * Apple servers recommend using a pooled connection up to
-     * 15 concurrent persistent connections to the gateways.
-     *
-     * Note: This option has no effect when using non-blocking
-     * connections.
      *
      * Note: The maxConnections here is used as a hint to how many connections
      * get created.
@@ -150,10 +137,10 @@ public class MpnsServiceBuilder {
     }
 
     /**
-     * Returns a fully initialized instance of {@link ApnsService},
+     * Returns a fully initialized instance of {@link MpnsService},
      * according to the requested settings.
      *
-     * @return  a new instance of ApnsService
+     * @return  a new instance of MpnsService
      */
     public MpnsService build() {
         checkInitialization();

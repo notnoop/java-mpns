@@ -61,8 +61,7 @@ public class RawNotification implements MpnsNotification {
         private String xml;
 
         public Builder() {
-            super();
-            this.notificationType("raw");
+            super("raw");
         }
 
         public Builder xml(String xml) {
@@ -82,7 +81,7 @@ public class RawNotification implements MpnsNotification {
         }
 
         @Override
-        protected RawNotification build() {
+        public RawNotification build() {
             return new RawNotification(xml, headers);
         }
     }

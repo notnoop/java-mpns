@@ -34,17 +34,39 @@ import com.notnoop.mpns.notifications.RawNotification;
 import com.notnoop.mpns.notifications.TileNotification;
 import com.notnoop.mpns.notifications.ToastNotification;
 
+/**
+ * Represents a builder for constructing the notifications requests,
+ * as specified by
+ * <a href="http://msdn.microsoft.com/en-us/library/ff402558(v=vs.92).aspx">
+ * Microsoft Push Notification Guide</a>:
+ *
+ */
 public class MpnsNotificationBuilder {
     public MpnsNotificationBuilder() {}
 
+    /**
+     * Sets the notification type to a Tile notification
+     *
+     * @return  a tile notification builder
+     */
     public TileNotification.Builder tile() {
         return new TileNotification.Builder();
     }
 
+    /**
+     * Sets the notification type to a Toast notification
+     *
+     * @return a toast notification builder
+     */
     public ToastNotification.Builder toast() {
         return new ToastNotification.Builder();
     }
 
+    /**
+     * Sets the notification type to a Raw notification
+     *
+     * @return  a row notification builder
+     */
     public RawNotification.Builder raw() {
         return new RawNotification.Builder();
     }

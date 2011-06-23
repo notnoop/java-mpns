@@ -78,8 +78,7 @@ public class ToastNotification implements MpnsNotification {
         private String title, subtitle, parameter;
 
         public Builder() {
-            super();
-            this.notificationType("toast");
+            super("toast");
         }
 
         public Builder title(String title) {
@@ -109,7 +108,7 @@ public class ToastNotification implements MpnsNotification {
         }
 
         @Override
-        protected ToastNotification build() {
+        public ToastNotification build() {
             return new ToastNotification(title, subtitle, parameter, headers);
         }
     }
