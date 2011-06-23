@@ -40,7 +40,7 @@ import com.notnoop.mpns.internal.Pair;
 @SuppressWarnings("unchecked")
 abstract class AbstractNotificationBuilder<A extends AbstractNotificationBuilder<A, B>, B> {
     protected List<Entry<String, String>> headers = new ArrayList<Entry<String, String>>();
-    
+
     public A messageId(String messageId) {
         this.headers.add(Pair.of("X-MessageId", messageId));
         return (A)this;
@@ -62,6 +62,6 @@ abstract class AbstractNotificationBuilder<A extends AbstractNotificationBuilder
     }
 
     protected abstract int deliveryValueOf(DeliveryClass delivery);
-    
+
     protected abstract B build();
 }
