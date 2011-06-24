@@ -40,6 +40,13 @@ To send a notification, you can do it in two steps:
 
 That's it!
 
+Features In the Making
+---------------------------
+  * Authenticated Connections
+  * Delegates and callbacks
+  * Auto retries (exponential back-off feature)
+  * More testing!
+
 Contact
 ---------------
 Support mailing list: http://groups.google.com/group/java-apns-discuss
