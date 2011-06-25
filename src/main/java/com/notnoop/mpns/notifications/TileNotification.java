@@ -74,9 +74,9 @@ public class TileNotification implements MpnsNotification {
               ifNonNull(backgroundImage, "<wp:BackgroundImage>" + escapeXml(backgroundImage) + "</wp:BackgroundImage>") +
               "<wp:Count>" + count + "</wp:Count>" +
               ifNonNull(title, "<wp:Title>" + escapeXml(title) + "</wp:Title>") +
-              ifNonNull(backBackgroundImage, "<wp:BackBackgroundImage><back side of tile image path></wp:BackBackgroundImage>") +
-              ifNonNull(backTitle, "<wp:BackTitle><back side of tile title></wp:BackTitle>") +
-              ifNonNull(backContent, "<wp:BackContent><back side of tile text></wp:BackContent>") +
+              ifNonNull(backBackgroundImage, "<wp:BackBackgroundImage>" + escapeXml(backBackgroundImage) + "</wp:BackBackgroundImage>") +
+              ifNonNull(backTitle, "<wp:BackTitle>" + escapeXml(backTitle) + "</wp:BackTitle>") +
+              ifNonNull(backContent, "<wp:BackContent>" + escapeXml(backContent) + "</wp:BackContent>") +
            "</wp:Tile> " +
         "</wp:Notification>";
 

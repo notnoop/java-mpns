@@ -62,7 +62,7 @@ public class RawNotification implements MpnsNotification {
         private byte[] body;
 
         public Builder() {
-            super("raw");
+            super();
         }
 
         public Builder body(String body) {

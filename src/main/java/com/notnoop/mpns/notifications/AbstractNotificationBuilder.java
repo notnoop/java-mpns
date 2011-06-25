@@ -48,6 +48,9 @@ import com.notnoop.mpns.internal.Pair;
 /*package-protected*/ abstract class AbstractNotificationBuilder<A extends AbstractNotificationBuilder<A, B>, B extends MpnsNotification> {
     protected List<Entry<String, String>> headers = new ArrayList<Entry<String, String>>();
 
+    protected AbstractNotificationBuilder() {
+    }
+
     protected AbstractNotificationBuilder(String type) {
         notificationType(type);
     }
