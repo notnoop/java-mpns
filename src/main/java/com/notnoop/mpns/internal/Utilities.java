@@ -34,6 +34,8 @@ import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 
+import com.notnoop.mpns.MpnsDelegate;
+import com.notnoop.mpns.MpnsNotification;
 import com.notnoop.mpns.MpnsResponse;
 
 import java.io.InputStream;
@@ -152,5 +154,13 @@ public final class Utilities {
 
     public static String messageIdOf(HttpResponse response) {
         return headerValue(response, "X-MessageID");
+    }
+
+    public static void fireDelegate(MpnsNotification message, HttpResponse response, MpnsDelegate delegate) {
+        if (delegate != null) {
+            MpnsResponse r = Utilities.logicalResponseFor(response);
+
+            delegate.messageSent(message, r);
+        }
     }
 }

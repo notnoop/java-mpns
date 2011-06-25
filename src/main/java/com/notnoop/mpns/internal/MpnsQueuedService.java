@@ -36,26 +36,27 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.apache.http.client.methods.HttpPost;
 
+import com.notnoop.mpns.MpnsNotification;
 import com.notnoop.mpns.MpnsService;
 
 public class MpnsQueuedService extends AbstractMpnsService implements MpnsService {
 
     private AbstractMpnsService service;
-    private BlockingQueue<HttpPost> queue;
+    private BlockingQueue<Pair<HttpPost, MpnsNotification>> queue;
     private AtomicBoolean started = new AtomicBoolean(false);
 
     public MpnsQueuedService(AbstractMpnsService service) {
         this.service = service;
-        this.queue = new LinkedBlockingQueue<HttpPost>();
+        this.queue = new LinkedBlockingQueue<Pair<HttpPost, MpnsNotification>>();
     }
 
     @Override
-    protected void push(final HttpPost request) {
+    protected void push(final HttpPost request, MpnsNotification message) {
         if (!started.get()) {
             throw new IllegalStateException("Service hans't been started or was closed");
         }
 
-        queue.add(request);
+        queue.add(Pair.of(request, message));
     }
 
     private Thread thread;
@@ -73,8 +74,8 @@ public class MpnsQueuedService extends AbstractMpnsService implements MpnsServic
             public void run() {
                 while (shouldContinue) {
                     try {
-                        HttpPost post = queue.take();
-                        service.push(post);
+                        Pair<HttpPost, MpnsNotification> post = queue.take();
+                        service.push(post.getKey(), post.getValue());
                     } catch (InterruptedException e) {}
                 }
             }

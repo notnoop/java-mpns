@@ -54,18 +54,18 @@ public abstract class AbstractMpnsService implements MpnsService {
         return method;
     }
 
-    protected abstract void push(HttpPost request);
+    protected abstract void push(HttpPost request, MpnsNotification message);
 
     public void push(String subscriptionUri, String payload,
             Collection<? extends Entry<String, String>> headers)
             throws NetworkIOException {
-        this.push(postMessage(subscriptionUri, Utilities.toUTF8(payload), headers));
+        this.push(postMessage(subscriptionUri, Utilities.toUTF8(payload), headers), null);
     }
 
     public void push(String subscriptionUri, MpnsNotification message)
             throws NetworkIOException {
         this.push(postMessage(subscriptionUri, message.getRequestBody(),
-                message.getHttpHeaders()));
+                message.getHttpHeaders()), message);
     }
 
     public void start() {}
