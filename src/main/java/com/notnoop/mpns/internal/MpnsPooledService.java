@@ -37,15 +37,19 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.util.EntityUtils;
 
+import com.notnoop.mpns.MpnsDelegate;
+import com.notnoop.mpns.MpnsResponse;
 import com.notnoop.mpns.MpnsService;
 
 public class MpnsPooledService extends AbstractMpnsService implements MpnsService {
     private final HttpClient httpClient;
     private final ExecutorService executor;
+    private final MpnsDelegate delegate;
 
-    public MpnsPooledService(HttpClient httpClient, ExecutorService executor) {
+    public MpnsPooledService(HttpClient httpClient, ExecutorService executor, MpnsDelegate delegate) {
         this.httpClient = httpClient;
         this.executor = executor;
+        this.delegate = delegate;
     }
 
     @Override
@@ -54,6 +58,12 @@ public class MpnsPooledService extends AbstractMpnsService implements MpnsServic
             public void run() {
                 try {
                     HttpResponse response = httpClient.execute(request);
+                    if (delegate != null) {
+                        MpnsResponse r = Utilities.logicalResponseFor(response);
+                        String messageId = Utilities.messageIdOf(response);
+
+                        delegate.messageSent(messageId, r);
+                    }
                     EntityUtils.consume(response.getEntity());
                 } catch (Exception e) {
                     throw new RuntimeException(e);

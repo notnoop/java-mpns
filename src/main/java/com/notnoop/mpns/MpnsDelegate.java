@@ -28,50 +28,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-package com.notnoop.mpns.internal;
+package com.notnoop.mpns;
 
-import java.io.IOException;
-
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.util.EntityUtils;
-
-import com.notnoop.mpns.MpnsDelegate;
-import com.notnoop.mpns.MpnsResponse;
-import com.notnoop.mpns.MpnsService;
-import com.notnoop.mpns.exceptions.NetworkIOException;
-
-public class MpnsServiceImpl extends AbstractMpnsService implements MpnsService {
-    private final HttpClient httpClient;
-    private final MpnsDelegate delegate;
-
-    public MpnsServiceImpl(HttpClient httpClient, MpnsDelegate delegate) {
-        this.httpClient = httpClient;
-        this.delegate = delegate;
-    }
-
-    @Override
-    protected void push(HttpPost request) {
-        try {
-            HttpResponse response = httpClient.execute(request);
-            if (delegate != null) {
-                MpnsResponse r = Utilities.logicalResponseFor(response);
-                String messageId = Utilities.messageIdOf(response);
-
-                delegate.messageSent(messageId, r);
-            }
-            EntityUtils.consume(response.getEntity());
-        } catch (ClientProtocolException e) {
-            throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new NetworkIOException(e);
-        }
-    }
-
-    public void stop() {
-        this.httpClient.getConnectionManager().shutdown();
-    }
-
+public interface MpnsDelegate {
+    public void messageSent(String messageId, MpnsResponse response);
 }

@@ -42,7 +42,7 @@ public class XMLEscapingTest {
     public void escapesNull() {
         assertThat(escapeXml(null), is((String)null));
     }
-    
+
     @Test
     public void escapeEmpty() {
         assertThat(escapeXml(""), is(""));
@@ -58,7 +58,7 @@ public class XMLEscapingTest {
     public void escapeAmpt() {
         assertThat(escapeXml("test&"), is("test&amp;"));
     }
-    
+
     @Test
     public void escapeAllValues() {
         assertThat(escapeXml("AT&T called \"Johns's father\" > 2 hours ago < 5 years ago."),

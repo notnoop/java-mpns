@@ -30,7 +30,11 @@
 */
 package com.notnoop.mpns.internal;
 
+import org.apache.http.Header;
+import org.apache.http.HttpResponse;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+
+import com.notnoop.mpns.MpnsResponse;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -108,5 +112,45 @@ public final class Utilities {
         } catch (UnsupportedEncodingException e) {
             throw new AssertionError("The world is coming to an end!  No UTF-8 support");
         }
+    }
+
+    private static String headerValue(HttpResponse response, String header) {
+        Header[] headers = response.getHeaders(header);
+
+        return headers.length == 0 ? null : headers[0].getValue();
+    }
+
+    private static MpnsResponse[] logicalResponses = MpnsResponse.values();
+    public static MpnsResponse logicalResponseFor(HttpResponse response) {
+        for (MpnsResponse r: logicalResponses) {
+            if (r.getResponseCode() != response.getStatusLine().getStatusCode()) {
+                continue;
+            }
+
+            if (r.getNotificationStatus() != null
+                && !r.getNotificationStatus().equals(headerValue(response, "X-NotificationStatus"))) {
+                continue;
+            }
+
+            if (r.getDeviceConnectionStatus() != null
+                && !r.getNotificationStatus().equals(headerValue(response, "X-DeviceConnectionStatus"))) {
+                continue;
+            }
+
+            if (r.getSubscriptionStatus() != null
+                && !r.getSubscriptionStatus().equals(headerValue(response, "X-SubscriptionStatus"))) {
+                continue;
+            }
+
+            return r;
+        }
+
+        // Didn't find anything
+        assert false;
+        return null;
+    }
+
+    public static String messageIdOf(HttpResponse response) {
+        return headerValue(response, "X-MessageID");
     }
 }

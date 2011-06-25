@@ -66,6 +66,8 @@ public class MpnsServiceBuilder {
     private HttpClient httpClient = null;
     private int timeout = -1;
 
+    private MpnsDelegate delegate;
+
     /**
      * Constructs a new instance of {@code MpnsServiceBuilder}
      */
@@ -161,6 +163,11 @@ public class MpnsServiceBuilder {
         return this;
     }
 
+    public MpnsServiceBuilder delegate(MpnsDelegate delegate) {
+        this.delegate = delegate;
+        return this;
+    }
+
     /**
      * Returns a fully initialized instance of {@link MpnsService},
      * according to the requested settings.
@@ -193,9 +200,9 @@ public class MpnsServiceBuilder {
         // Configure service
         AbstractMpnsService service;
         if (pooledMax == 1) {
-            service = new MpnsServiceImpl(client);
+            service = new MpnsServiceImpl(client, delegate);
         } else {
-            service = new MpnsPooledService(client, executor);
+            service = new MpnsPooledService(client, executor, delegate);
         }
 
         if (isQueued) {
