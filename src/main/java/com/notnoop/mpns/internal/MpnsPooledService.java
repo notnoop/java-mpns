@@ -35,6 +35,7 @@ import java.util.concurrent.ExecutorService;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.util.EntityUtils;
 
 import com.notnoop.mpns.MpnsService;
 
@@ -53,7 +54,7 @@ public class MpnsPooledService extends AbstractMpnsService implements MpnsServic
             public void run() {
                 try {
                     HttpResponse response = httpClient.execute(request);
-                    assert response != null;
+                    EntityUtils.consume(response.getEntity());
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

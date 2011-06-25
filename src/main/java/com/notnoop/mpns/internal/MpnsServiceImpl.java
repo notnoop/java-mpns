@@ -36,6 +36,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpPost;
+import org.apache.http.util.EntityUtils;
 
 import com.notnoop.mpns.MpnsService;
 import com.notnoop.mpns.exceptions.NetworkIOException;
@@ -51,7 +52,7 @@ public class MpnsServiceImpl extends AbstractMpnsService implements MpnsService 
     protected void push(HttpPost request) {
         try {
             HttpResponse response = httpClient.execute(request);
-            assert response != null;
+            EntityUtils.consume(response.getEntity());
         } catch (ClientProtocolException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
