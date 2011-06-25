@@ -47,6 +47,11 @@ Features In the Making
   * Auto retries (exponential back-off feature)
   * More testing!
 
+Sponsorship
+---------------
+
+This work is sponsored by [Excitor A/S](http://www.excitor.com/).
+
 Contact
 ---------------
 Support mailing list: http://groups.google.com/group/java-apns-discuss
