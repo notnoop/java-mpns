@@ -17,6 +17,7 @@ Features:
   *  Easy to integrate with dependency injection frameworks
   *  Easy to setup custom notification payloads
   *  Supports connection pooling
+  *  Supports message delegates and callbacks
 
 
 Sample Code
@@ -43,7 +44,6 @@ That's it!
 Features In the Making
 ---------------------------
   * Authenticated Connections
-  * Delegates and callbacks
   * Auto retries (exponential back-off feature)
   * More testing!
 
