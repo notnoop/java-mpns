@@ -160,7 +160,11 @@ public final class Utilities {
         if (delegate != null) {
             MpnsResponse r = Utilities.logicalResponseFor(response);
 
-            delegate.messageSent(message, r);
+            if (r.isSuccessful()) {
+                delegate.messageSent(message, r);
+            } else {
+                delegate.messageFailed(message, r);
+            }
         }
     }
 }
