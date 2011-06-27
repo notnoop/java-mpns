@@ -116,10 +116,10 @@ public final class Utilities {
         }
     }
 
-    private static String headerValue(HttpResponse response, String header) {
-        Header[] headers = response.getHeaders(header);
+    private static String headerValue(HttpResponse response, String name) {
+        Header header = response.getFirstHeader(name);
 
-        return headers.length == 0 ? null : headers[0].getValue();
+        return header == null ? null: header.getValue();
     }
 
     private static MpnsResponse[] logicalResponses = MpnsResponse.values();
