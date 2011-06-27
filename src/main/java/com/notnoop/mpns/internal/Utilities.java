@@ -51,26 +51,6 @@ public final class Utilities {
      */
     public static String XML_CONTENT_TYPE = "text/xml";
 
-    public static String readFully(InputStream is) {
-        final char[] buffer = new char[0x10000];
-        StringBuilder out = new StringBuilder();
-        try {
-            Reader in = new InputStreamReader(is, "UTF-8");
-            int read;
-            do {
-                read = in.read(buffer, 0, buffer.length);
-                if (read>0) {
-                    out.append(buffer, 0, read);
-                }
-            } while (read>=0);
-            return out.toString();
-        } catch (RuntimeException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     public static ThreadSafeClientConnManager poolManager(int maxConnections) {
         ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager();
         cm.setMaxTotal(maxConnections);
@@ -150,10 +130,6 @@ public final class Utilities {
         // Didn't find anything
         assert false;
         return null;
-    }
-
-    public static String messageIdOf(HttpResponse response) {
-        return headerValue(response, "X-MessageID");
     }
 
     public static void fireDelegate(MpnsNotification message, HttpResponse response, MpnsDelegate delegate) {
