@@ -30,6 +30,8 @@
 */
 package com.notnoop.mpns.internal;
 
+import java.io.UnsupportedEncodingException;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
@@ -37,11 +39,6 @@ import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 import com.notnoop.mpns.MpnsDelegate;
 import com.notnoop.mpns.MpnsNotification;
 import com.notnoop.mpns.MpnsResponse;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 
 public final class Utilities {
     private Utilities() { throw new AssertionError("Uninstantiable class"); }
