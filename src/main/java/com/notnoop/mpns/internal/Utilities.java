@@ -115,7 +115,7 @@ public final class Utilities {
             }
 
             if (r.getDeviceConnectionStatus() != null
-                && !r.getNotificationStatus().equals(headerValue(response, "X-DeviceConnectionStatus"))) {
+                && !r.getDeviceConnectionStatus().equals(headerValue(response, "X-DeviceConnectionStatus"))) {
                 continue;
             }
 
