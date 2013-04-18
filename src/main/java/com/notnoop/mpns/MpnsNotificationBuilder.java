@@ -30,6 +30,7 @@
  */
 package com.notnoop.mpns;
 
+import com.notnoop.mpns.notifications.IconicTileNotification;
 import com.notnoop.mpns.notifications.RawNotification;
 import com.notnoop.mpns.notifications.TileNotification;
 import com.notnoop.mpns.notifications.ToastNotification;
@@ -60,6 +61,15 @@ public class MpnsNotificationBuilder {
      */
     public ToastNotification.Builder toast() {
         return new ToastNotification.Builder();
+    }
+    
+    /**
+     * Sets the notification type to a Iconic Tile notification
+     *
+     * @return a iconic tile notification builder
+     */
+    public IconicTileNotification.Builder iconicTile() {
+        return new IconicTileNotification.Builder();
     }
 
     /**
