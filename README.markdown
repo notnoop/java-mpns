@@ -38,12 +38,20 @@ To send a notification, you can do it in two steps:
             .build();
         String subscriptionUri = "https://..../"
         service.push(subscriptionUri, notification);
+        
+3. Create a ssl connection
+
+		MpnsService service = MPNS.newService()
+                    .withCert(WIN_MPNS_KEYSTORE_PATH, WIN_MPNS_CERTIFICATE_PASS, "JKS", KeyManagerFactory.getDefaultAlgorithm())
+                    .build();
+        The common name of certificate used in creating the keystore should be used during registering for the windows push service
+        (opening the push channel) by the windows native app.
 
 That's it!
 
 Features In the Making
 ---------------------------
-  * Authenticated Connections
+  * Authenticated Connections(DONE)
   * Auto retries (exponential back-off feature)
   * More testing!
 
