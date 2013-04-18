@@ -30,20 +30,33 @@
 */
 package com.notnoop.mpns.internal;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.security.KeyStore;
+import java.util.Enumeration;
+
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.notnoop.mpns.MpnsDelegate;
 import com.notnoop.mpns.MpnsNotification;
 import com.notnoop.mpns.MpnsResponse;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
+import com.notnoop.mpns.exceptions.InvalidSSLConfig;
 
 public final class Utilities {
+	private static Logger logger = LoggerFactory.getLogger(Utilities.class);
     private Utilities() { throw new AssertionError("Uninstantiable class"); }
 
     /**
@@ -115,7 +128,7 @@ public final class Utilities {
             }
 
             if (r.getDeviceConnectionStatus() != null
-                && !r.getNotificationStatus().equals(headerValue(response, "X-DeviceConnectionStatus"))) {
+                && !r.getDeviceConnectionStatus().equals(headerValue(response, "X-DeviceConnectionStatus"))) {
                 continue;
             }
 
@@ -131,16 +144,84 @@ public final class Utilities {
         assert false;
         return null;
     }
+    
+    public static void close(Closeable closeable) {
+        try {
+            if (closeable != null) {
+                closeable.close();
+            }
+        } catch (IOException e) {
+            logger.debug("error while closing resource", e);
+        }
+    }
 
     public static void fireDelegate(MpnsNotification message, HttpResponse response, MpnsDelegate delegate) {
         if (delegate != null) {
             MpnsResponse r = Utilities.logicalResponseFor(response);
 
-            if (r.isSuccessful()) {
-                delegate.messageSent(message, r);
-            } else {
-                delegate.messageFailed(message, r);
+            if(r!=null) {
+            	if (r.isSuccessful()) {
+                	delegate.messageSent(message, r);
+            	} else {
+                	delegate.messageFailed(message, r);
+            	}
             }
         }
+    }
+    
+    public static SSLSocketFactory newSSLSocketFactory(InputStream cert, String password,
+    		String ksType, String ksAlgorithm) throws InvalidSSLConfig 
+    {
+    	SSLContext context = newSSLContext(cert, password, ksType, ksAlgorithm);
+    	return context.getSocketFactory();
+    }
+    
+    // Create a trust manager that does not validate certificate chains
+    private static TrustManager[] trustAllCerts = new TrustManager[]{
+    	new X509TrustManager()
+    	{
+    		public java.security.cert.X509Certificate[] getAcceptedIssuers()
+    		{
+    			return null;
+    		}
+    		public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType)
+            {}
+
+    		public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType)
+            {}
+    	}
+    };
+
+    public static SSLContext newSSLContext(InputStream cert, String password,
+    	String ksType, String ksAlgorithm) throws InvalidSSLConfig 
+    {
+        try {
+               KeyStore ks = KeyStore.getInstance(ksType);
+               ks.load(cert, password.toCharArray());
+
+               // Get a KeyManager and initialize it
+               KeyManagerFactory kmf = KeyManagerFactory.getInstance(ksAlgorithm);
+               kmf.init(ks, password.toCharArray());
+
+               // Get a TrustManagerFactory and init with KeyStore
+               TrustManagerFactory tmf = TrustManagerFactory.getInstance(ksAlgorithm);
+               tmf.init(ks);
+
+               // Get the SSLContext to help create SSLSocketFactory
+               SSLContext sslc = SSLContext.getInstance("TLS");
+               sslc.init(kmf.getKeyManagers(), trustAllCerts, null);
+               
+    		   logger.debug("SSL context read with following properties:");
+    		   logger.debug("Aliases");
+    		   String alias;
+    		   Enumeration<String> aliases = ks.aliases();
+    		   while(aliases.hasMoreElements()) {
+    			   alias = aliases.nextElement();
+    			   logger.debug("Alias:"+alias+" with certificate:"+ks.getCertificate(alias)+" certType:"+ks.getCertificate(alias).getType());
+    		   }
+               return sslc;
+           } catch (Exception e) {
+               throw new InvalidSSLConfig(e);
+           }
     }
 }

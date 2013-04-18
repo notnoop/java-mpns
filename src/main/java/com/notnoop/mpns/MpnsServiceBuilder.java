@@ -30,17 +30,30 @@
  */
 package com.notnoop.mpns;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.conn.scheme.Scheme;
+import org.apache.http.conn.ssl.SSLSocketFactory;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-import com.notnoop.mpns.internal.*;
+import com.notnoop.mpns.exceptions.InvalidSSLConfig;
+import com.notnoop.mpns.exceptions.RuntimeIOException;
+import com.notnoop.mpns.internal.AbstractMpnsService;
+import com.notnoop.mpns.internal.MpnsPooledService;
+import com.notnoop.mpns.internal.MpnsQueuedService;
+import com.notnoop.mpns.internal.MpnsServiceImpl;
+import com.notnoop.mpns.internal.Utilities;
 
 /**
  * The class is used to create instances of {@link MpnsService}.
@@ -58,6 +71,9 @@ import com.notnoop.mpns.internal.*;
  * </pre>
  */
 public class MpnsServiceBuilder {
+
+    private SSLContext sslContext;
+	
     private int pooledMax = 1;
     private ExecutorService executor = null;
 
@@ -72,6 +88,36 @@ public class MpnsServiceBuilder {
      * Constructs a new instance of {@code MpnsServiceBuilder}
      */
     public MpnsServiceBuilder() { }
+    
+    public MpnsServiceBuilder withCert(String fileName, String password, String ksType, String kAlgo)
+    		throws RuntimeIOException, InvalidSSLConfig 
+    {
+        FileInputStream stream = null;
+        try {
+            stream = new FileInputStream(fileName);
+            return withCert(stream, password, ksType, kAlgo);
+        } catch (FileNotFoundException e) {
+            throw new RuntimeIOException(e);
+        } finally {
+            Utilities.close(stream);
+        }
+    }
+    
+    public MpnsServiceBuilder withCert(InputStream stream, String password, String ksType, String kAlgo)
+    		throws InvalidSSLConfig 
+    {
+        if (password == null || password.isEmpty()) {
+            throw new IllegalArgumentException("Passwords must be specified." +
+                    "Oracle Java SDK does not support passwordless p12 certificates");
+        }
+
+        return withSSLContext(Utilities.newSSLContext(stream, password,ksType, kAlgo));
+    }
+    
+    public MpnsServiceBuilder withSSLContext(SSLContext sslContext) {
+        this.sslContext = sslContext;
+        return this;
+    }
 
     /**
      * Specify the address of the HTTP proxy the connection should
@@ -182,9 +228,17 @@ public class MpnsServiceBuilder {
         if (httpClient != null) {
             client = httpClient;
         } else if (pooledMax == 1) {
-            client = new DefaultHttpClient();
+        	client = new DefaultHttpClient();
+        	
+            SSLSocketFactory socketFactory = new SSLSocketFactory(sslContext);
+            Scheme sch = new Scheme("https", 443, socketFactory);
+            client.getConnectionManager().getSchemeRegistry().register(sch);
         } else {
             client = new DefaultHttpClient(Utilities.poolManager(pooledMax));
+            
+            SSLSocketFactory socketFactory = new SSLSocketFactory(sslContext);
+            Scheme sch = new Scheme("https", 443, socketFactory);
+            client.getConnectionManager().getSchemeRegistry().register(sch);
         }
 
         if (proxy != null) {
