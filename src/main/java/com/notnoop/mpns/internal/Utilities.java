@@ -30,18 +30,16 @@
 */
 package com.notnoop.mpns.internal;
 
+import java.io.UnsupportedEncodingException;
+
 import org.apache.http.Header;
 import org.apache.http.HttpResponse;
 import org.apache.http.impl.conn.tsccm.ThreadSafeClientConnManager;
 
+import com.notnoop.mpns.DeliveryClass;
 import com.notnoop.mpns.MpnsDelegate;
 import com.notnoop.mpns.MpnsNotification;
 import com.notnoop.mpns.MpnsResponse;
-
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.io.UnsupportedEncodingException;
 
 public final class Utilities {
     private Utilities() { throw new AssertionError("Uninstantiable class"); }
@@ -65,6 +63,29 @@ public final class Utilities {
      */
     public static String ifNonNull(Object cond, String value) {
         return cond != null ? value : "";
+    }
+    
+    public static String xmlElement(String name, String content) {
+    	return xmlElement(name, content, false);
+    }
+    
+    public static String xmlElementClear(String name, String content) {
+    	return xmlElement(name, content, true);
+    }
+    
+    private static String xmlElement(String name, String content, boolean isClear) {
+    	if( content == null ) {
+    		return "";
+    	}
+    	StringBuilder sb = new StringBuilder(500);
+    	sb.append("<wp:").append(name);
+    	if( isClear ) {
+    		sb.append(" Action=\"Clear\"");
+    	}
+		sb.append(">");
+    	sb.append(escapeXml(content));
+    	sb.append("</wp:").append(name).append(">");
+    	return sb.toString();
     }
 
     public static String escapeXml(String value) {
@@ -115,7 +136,7 @@ public final class Utilities {
             }
 
             if (r.getDeviceConnectionStatus() != null
-                && !r.getNotificationStatus().equals(headerValue(response, "X-DeviceConnectionStatus"))) {
+                && !r.getDeviceConnectionStatus().equals(headerValue(response, "X-DeviceConnectionStatus"))) {
                 continue;
             }
 
@@ -143,4 +164,15 @@ public final class Utilities {
             }
         }
     }
+    
+    public static int getTileDelivery(DeliveryClass delivery) {
+        switch (delivery) {
+        case IMMEDIATELY:   return 1;
+        case WITHIN_450:    return 11;
+        case WITHIN_900:    return 21;
+        default:
+            throw new AssertionError("Unknown Value: " + delivery);
+        }
+    }
 }
+

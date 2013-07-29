@@ -30,17 +30,28 @@
  */
 package com.notnoop.mpns;
 
+import java.io.ByteArrayInputStream;
+import java.security.KeyStore;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-import com.notnoop.mpns.internal.*;
+import com.notnoop.mpns.internal.AbstractMpnsService;
+import com.notnoop.mpns.internal.MpnsPooledService;
+import com.notnoop.mpns.internal.MpnsQueuedService;
+import com.notnoop.mpns.internal.MpnsServiceImpl;
+import com.notnoop.mpns.internal.Utilities;
 
 /**
  * The class is used to create instances of {@link MpnsService}.
@@ -67,6 +78,10 @@ public class MpnsServiceBuilder {
     private int timeout = -1;
 
     private MpnsDelegate delegate;
+
+    // Authenticated calls
+    private byte[] pkcs12; // pkcs12 file generated from "openssl pkcs12 -inkey private_key.crt -in public_key.crt -export -out outputfile.pkcs12 -certfile intermediate_certs.crt"
+    private String password; // password for the file
 
     /**
      * Constructs a new instance of {@code MpnsServiceBuilder}
@@ -153,6 +168,15 @@ public class MpnsServiceBuilder {
     }
 
     /**
+     * Authenticated
+     */
+    public MpnsServiceBuilder asAuthenticated(byte[] pkcs12, String password) {
+    	this.pkcs12 = pkcs12;
+    	this.password = password;
+    	return this;
+    }
+
+    /**
      * Sets the timeout for the connection
      *
      * @param   timeout     the time out period in millis
@@ -189,6 +213,28 @@ public class MpnsServiceBuilder {
 
         if (proxy != null) {
             client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+        }
+
+        if( pkcs12 != null && pkcs12.length > 0 &&
+        		password != null && !"".equals(password.trim())) {
+        	try {
+	        	KeyStore keyStore = KeyStore.getInstance("PKCS12", "SunJSSE");
+	        	keyStore.load(new ByteArrayInputStream(pkcs12), password.toCharArray());
+	        				
+	        	KeyManagerFactory kmfactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+	        	kmfactory.init(keyStore, password.toCharArray());
+	        	KeyManager[] km = kmfactory.getKeyManagers();
+	
+	        	// create SSL socket factory
+	        	SSLContext sslContext = SSLContext.getInstance("TLS");
+	        	sslContext.init(km, null, null);
+	        	org.apache.http.conn.ssl.SSLSocketFactory sslSocketFactory = new org.apache.http.conn.ssl.SSLSocketFactory(sslContext);
+	     
+	        	Scheme https = new Scheme("https", 443, sslSocketFactory);
+	        	client.getConnectionManager().getSchemeRegistry().register(https);
+        	} catch( Exception e ) {
+        		throw new IllegalArgumentException(e);
+        	}
         }
 
         if (timeout > 0) {
