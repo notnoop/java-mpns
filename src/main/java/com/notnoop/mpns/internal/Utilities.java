@@ -74,7 +74,7 @@ public final class Utilities {
     }
     
     private static String xmlElement(String name, String content, boolean isClear) {
-    	if( content == null ) {
+    	if( content == null || "".equals(content.trim())) {
     		return "";
     	}
     	StringBuilder sb = new StringBuilder(500);
@@ -166,12 +166,14 @@ public final class Utilities {
     }
     
     public static int getTileDelivery(DeliveryClass delivery) {
+    	if( delivery == null ) {
+    		delivery = DeliveryClass.IMMEDIATELY;
+    	}
         switch (delivery) {
         case IMMEDIATELY:   return 1;
         case WITHIN_450:    return 11;
         case WITHIN_900:    return 21;
-        default:
-            throw new AssertionError("Unknown Value: " + delivery);
+        default:            return 1; // IMMEDIATELY is the default
         }
     }
 }

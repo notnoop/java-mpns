@@ -40,39 +40,25 @@ import com.notnoop.mpns.internal.Utilities;
 
 import static com.notnoop.mpns.internal.Utilities.escapeXml;
 import static com.notnoop.mpns.internal.Utilities.ifNonNull;
+import static com.notnoop.mpns.internal.Utilities.xmlElement;
 
 public class ToastNotification implements MpnsNotification {
-    private final String title;
-    private final String subtitle;
-    private final String parameter;
+    private final Builder builder;
 
     private final List<? extends Entry<String, String>> headers;
 
-    public ToastNotification(String title, String subtitle, String parameter,
+    public ToastNotification(Builder builder,
             List<? extends Entry<String, String>> headers) {
-        this.title = title;
-        this.subtitle = subtitle;
-        this.parameter = parameter;
-
+        this.builder = builder;
         this.headers = headers;
-    }
-
-    public byte[] getRequestBody() {
-        String message =
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-            "<wp:Notification xmlns:wp=\"WPNotification\">" +
-               "<wp:Toast>" +
-                    ifNonNull(title, "<wp:Text1>" + escapeXml(title) + "</wp:Text1>") +
-                    ifNonNull(subtitle, "<wp:Text2>" + escapeXml(subtitle) + "</wp:Text2>") +
-                    ifNonNull(parameter, "<wp:Param>" + escapeXml(parameter) + "</wp:Param>") +
-               "</wp:Toast> " +
-            "</wp:Notification>";
-
-        return Utilities.toUTF8(message);
     }
 
     public List<? extends Entry<String, String>> getHttpHeaders() {
         return Collections.unmodifiableList(this.headers);
+    }
+    
+    public byte[] getRequestBody() {
+    	return this.builder.toByteArray();
     }
 
     public static class Builder extends AbstractNotificationBuilder<Builder, ToastNotification> {
@@ -100,18 +86,35 @@ public class ToastNotification implements MpnsNotification {
 
         @Override
         protected int deliveryValueOf(DeliveryClass delivery) {
+        	if( delivery == null ) {
+        		delivery = DeliveryClass.IMMEDIATELY;
+        	}
             switch (delivery) {
             case IMMEDIATELY:   return 2;
             case WITHIN_450:    return 12;
             case WITHIN_900:    return 22;
-            default:
-                throw new AssertionError("Unknown Value: " + delivery);
+            default:            return 2; // IMMEDIATELY is the default
             }
         }
 
         @Override
         public ToastNotification build() {
-            return new ToastNotification(title, subtitle, parameter, headers);
+            return new ToastNotification(this, headers);
         }
+        
+        public byte[] toByteArray() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+            sb.append("<wp:Notification xmlns:wp=\"WPNotification\">");
+            sb.append("<wp:Toast>");
+        	sb.append(xmlElement("Text1", title));
+        	sb.append(xmlElement("Text2", subtitle));
+        	sb.append(xmlElement("Param", parameter));
+            sb.append("</wp:Tile>");
+            sb.append("</wp:Notification>");
+            
+            return Utilities.toUTF8(sb.toString());
+        }
+
     }
 }

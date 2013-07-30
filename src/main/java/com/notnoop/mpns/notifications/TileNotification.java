@@ -30,6 +30,8 @@
  */
 package com.notnoop.mpns.notifications;
 
+import static com.notnoop.mpns.internal.Utilities.xmlElement;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
@@ -38,64 +40,24 @@ import com.notnoop.mpns.DeliveryClass;
 import com.notnoop.mpns.MpnsNotification;
 import com.notnoop.mpns.internal.Utilities;
 
-import static com.notnoop.mpns.internal.Utilities.escapeXml;
-import static com.notnoop.mpns.internal.Utilities.ifNonNull;
-
 public class TileNotification implements MpnsNotification {
-    private final String backgroundImage;
-    private final String title;
-    private int count;
-
-    private final String backBackgroundImage;
-    private final String backTitle;
-    private final String backContent;
+    private final Builder builder;
 
     private final List<? extends Entry<String, String>> headers;
 
-    public TileNotification(String backgroundImage, String title, int count,
-            String backBackgroundImage, String backTitle, String backContent,
-            List<? extends Entry<String, String>> headers) {
-        this.backgroundImage = backgroundImage;
-        this.title = title;
-        this.count = count;
-
-        this.backBackgroundImage = backBackgroundImage;
-        this.backTitle = backTitle;
-        this.backContent = backContent;
-
-        this.headers = headers;
+    public TileNotification(Builder builder, List<? extends Entry<String, String>> headers) {
+    	this.builder = builder;
+    	this.headers = headers;
     }
 
     public byte[] getRequestBody() {
-        String tileMessage = getXmlHead() + getXmlBody() + getXmlTail();
-
-        return Utilities.toUTF8(tileMessage);
-    }
-    
-    public String getXmlHead() {
-    	return "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-                "<wp:Notification xmlns:wp=\"WPNotification\">" +
-                "<wp:Tile>";
-    }
-    
-    public String getXmlTail() {
-    	return "</wp:Tile> " +
-    	       "</wp:Notification>";
-    }
-    
-    public String getXmlBody() {
-    	return  ifNonNull(backgroundImage, "<wp:BackgroundImage>" + escapeXml(backgroundImage) + "</wp:BackgroundImage>") +
-                "<wp:Count>" + count + "</wp:Count>" +
-                ifNonNull(title, "<wp:Title>" + escapeXml(title) + "</wp:Title>") +
-                ifNonNull(backBackgroundImage, "<wp:BackBackgroundImage>" + escapeXml(backBackgroundImage) + "</wp:BackBackgroundImage>") +
-                ifNonNull(backTitle, "<wp:BackTitle>" + escapeXml(backTitle) + "</wp:BackTitle>") +
-                ifNonNull(backContent, "<wp:BackContent>" + escapeXml(backContent) + "</wp:BackContent>");
+    	return this.builder.toByteArray();
     }
 
     public List<? extends Entry<String, String>> getHttpHeaders() {
         return Collections.unmodifiableList(this.headers);
     }
-
+    
     public static class Builder extends AbstractNotificationBuilder<Builder, TileNotification> {
         private String backgroundImage, title, backBackgroundImage, backTitle, backContent;
         private int count;
@@ -142,8 +104,24 @@ public class TileNotification implements MpnsNotification {
 
         @Override
         public TileNotification build() {
-            return new TileNotification(backgroundImage, title, count,
-                    backBackgroundImage, backTitle, backContent,headers);
+            return new TileNotification(this, headers);
+        }
+        
+        public byte[] toByteArray() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
+            sb.append("<wp:Notification xmlns:wp=\"WPNotification\">");
+            sb.append("<wp:Tile>");
+            sb.append(xmlElement("BackgroundImage", backgroundImage));
+            sb.append(xmlElement("Count", ""+count));
+            sb.append(xmlElement("Title", title));
+            sb.append(xmlElement("BackBackgroundImage", backBackgroundImage));
+            sb.append(xmlElement("BackTitle", backTitle));
+            sb.append(xmlElement("BackContent", backContent));
+            sb.append("</wp:Tile>");
+            sb.append("</wp:Notification>");
+
+            return Utilities.toUTF8(sb.toString());
         }
     }
 }
