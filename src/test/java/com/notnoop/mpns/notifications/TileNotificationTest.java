@@ -34,6 +34,7 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import com.notnoop.mpns.MPNS;
+import com.notnoop.mpns.notifications.TileNotification;
 
 import static com.notnoop.mpns.util.matches.IsValidXml.isValidXml;
 

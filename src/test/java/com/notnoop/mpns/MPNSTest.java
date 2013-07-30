@@ -31,6 +31,11 @@
 package com.notnoop.mpns;
 
 import org.junit.Test;
+
+import com.notnoop.mpns.MPNS;
+import com.notnoop.mpns.MpnsNotificationBuilder;
+import com.notnoop.mpns.MpnsServiceBuilder;
+
 import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 
