@@ -38,8 +38,8 @@ import com.notnoop.mpns.DeliveryClass;
 import com.notnoop.mpns.MpnsNotification;
 import com.notnoop.mpns.internal.Utilities;
 
-import static com.notnoop.mpns.internal.Utilities.ifNonNull;
 import static com.notnoop.mpns.internal.Utilities.escapeXml;
+import static com.notnoop.mpns.internal.Utilities.ifNonNull;
 
 public class ToastNotification implements MpnsNotification {
     private final String title;

@@ -30,6 +30,9 @@
  */
 package com.notnoop.mpns;
 
+import com.notnoop.mpns.notifications.CycleTileNotification;
+import com.notnoop.mpns.notifications.FlipTileNotification;
+import com.notnoop.mpns.notifications.IconicTileNotification;
 import com.notnoop.mpns.notifications.RawNotification;
 import com.notnoop.mpns.notifications.TileNotification;
 import com.notnoop.mpns.notifications.ToastNotification;
@@ -51,6 +54,27 @@ public class MpnsNotificationBuilder {
      */
     public TileNotification.Builder tile() {
         return new TileNotification.Builder();
+    }
+    
+    /**
+     * Windows 8: Flip Tile
+     */
+    public FlipTileNotification.Builder flipTile() {
+    	return new FlipTileNotification.Builder();
+    }
+    
+    /**
+     * Windows 8: Iconic Tile
+     */
+    public IconicTileNotification.Builder iconicTile() {
+    	return new IconicTileNotification.Builder();
+    }
+    
+    /**
+     * Windows 8: Cycle Tile
+     */
+    public CycleTileNotification.Builder cycleTile() {
+    	return new CycleTileNotification.Builder();
     }
 
     /**

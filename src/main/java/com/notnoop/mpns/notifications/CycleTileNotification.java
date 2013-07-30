@@ -49,7 +49,7 @@ public class CycleTileNotification implements MpnsNotification {
 	
     private final List<? extends Entry<String, String>> headers;
 
-    public CycleTileNotification(Builder builder, List<? extends Entry<String, String>> headers) {
+    protected CycleTileNotification(Builder builder, List<? extends Entry<String, String>> headers) {
     	this.builder = builder;
     	this.headers = headers;
     }
@@ -124,7 +124,7 @@ public class CycleTileNotification implements MpnsNotification {
             return new CycleTileNotification(this, this.headers);
         }
         
-        public byte[] toByteArray() {
+        protected byte[] toByteArray() {
             StringBuilder sb = new StringBuilder();
             sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             sb.append("<wp:Notification xmlns:wp=\"WPNotification\">");

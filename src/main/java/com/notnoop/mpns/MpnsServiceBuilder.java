@@ -31,7 +31,15 @@
 package com.notnoop.mpns;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -47,11 +55,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 
-import com.notnoop.mpns.internal.AbstractMpnsService;
-import com.notnoop.mpns.internal.MpnsPooledService;
-import com.notnoop.mpns.internal.MpnsQueuedService;
-import com.notnoop.mpns.internal.MpnsServiceImpl;
-import com.notnoop.mpns.internal.Utilities;
+import com.notnoop.mpns.internal.*;
 
 /**
  * The class is used to create instances of {@link MpnsService}.
@@ -78,10 +82,53 @@ public class MpnsServiceBuilder {
     private int timeout = -1;
 
     private MpnsDelegate delegate;
-
+    
     // Authenticated calls
-    private byte[] pkcs12; // pkcs12 file generated from "openssl pkcs12 -inkey private_key.crt -in public_key.crt -export -out outputfile.pkcs12 -certfile intermediate_certs.crt"
-    private String password; // password for the file
+    private SecurityInfo securityInfo;
+    
+    public static class SecurityInfo {
+    	private byte[] cert;
+    	private String password;
+    	private SecurityType type;
+    	
+    	public SecurityInfo(byte[] cert, String password, SecurityType type) {
+    		if( cert == null || cert.length == 0 || password == null || "".equals(password.trim()) ) {
+    			throw new IllegalArgumentException("Please provide certificate and password");
+    		}
+    		this.cert = Arrays.copyOf(cert, cert.length);
+    		this.password = password;
+    		this.type = type;
+    	}
+    	
+    	public byte[] getCert() {
+    		return cert;
+    	}
+    	public String getPassword() {
+    		return password;
+    	}
+    	public SecurityType getType() {
+    		return type;
+    	}
+    }
+    
+    public enum SecurityType {
+    	JKS("JKS", null),
+    	PKCS12("PKCS12", "SunJSSE");
+    	
+    	private String name, provider;
+    	SecurityType(String name, String provider) {
+    		this.name = name;
+    		this.provider = provider;
+    	}
+    	
+    	public String getName() {
+    		return name;
+    	}
+    	
+    	public String getProvider() {
+    		return provider;
+    	}
+    }
 
     /**
      * Constructs a new instance of {@code MpnsServiceBuilder}
@@ -166,13 +213,12 @@ public class MpnsServiceBuilder {
         this.isQueued = true;
         return this;
     }
-
+    
     /**
      * Authenticated
      */
-    public MpnsServiceBuilder asAuthenticated(byte[] pkcs12, String password) {
-    	this.pkcs12 = pkcs12;
-    	this.password = password;
+    public MpnsServiceBuilder asAuthenticated(SecurityInfo securityInfo) {
+    	this.securityInfo = securityInfo;
     	return this;
     }
 
@@ -214,15 +260,21 @@ public class MpnsServiceBuilder {
         if (proxy != null) {
             client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
         }
-
-        if( pkcs12 != null && pkcs12.length > 0 &&
-        		password != null && !"".equals(password.trim())) {
+        
+        if( securityInfo != null ) {
         	try {
-	        	KeyStore keyStore = KeyStore.getInstance("PKCS12", "SunJSSE");
-	        	keyStore.load(new ByteArrayInputStream(pkcs12), password.toCharArray());
+        		SecurityType type = securityInfo.getType();
+	        	KeyStore keyStore = null;
+	        	if( type.getProvider() == null ) {
+	        		keyStore = KeyStore.getInstance(type.getName());
+	        	} else {
+	        		keyStore = KeyStore.getInstance(type.getName(), type.getProvider());
+	        	}
+	        	keyStore.load(new ByteArrayInputStream(securityInfo.getCert()),
+	        			securityInfo.getPassword().toCharArray());
 	        				
 	        	KeyManagerFactory kmfactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
-	        	kmfactory.init(keyStore, password.toCharArray());
+	        	kmfactory.init(keyStore, securityInfo.getPassword().toCharArray());
 	        	KeyManager[] km = kmfactory.getKeyManagers();
 	
 	        	// create SSL socket factory

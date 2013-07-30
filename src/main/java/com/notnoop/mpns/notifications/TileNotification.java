@@ -38,8 +38,8 @@ import com.notnoop.mpns.DeliveryClass;
 import com.notnoop.mpns.MpnsNotification;
 import com.notnoop.mpns.internal.Utilities;
 
-import static com.notnoop.mpns.internal.Utilities.ifNonNull;
 import static com.notnoop.mpns.internal.Utilities.escapeXml;
+import static com.notnoop.mpns.internal.Utilities.ifNonNull;
 
 public class TileNotification implements MpnsNotification {
     private final String backgroundImage;
@@ -67,20 +67,29 @@ public class TileNotification implements MpnsNotification {
     }
 
     public byte[] getRequestBody() {
-        String tileMessage =
-            "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
-            "<wp:Notification xmlns:wp=\"WPNotification\">" +
-            "<wp:Tile>" +
-              ifNonNull(backgroundImage, "<wp:BackgroundImage>" + escapeXml(backgroundImage) + "</wp:BackgroundImage>") +
-              "<wp:Count>" + count + "</wp:Count>" +
-              ifNonNull(title, "<wp:Title>" + escapeXml(title) + "</wp:Title>") +
-              ifNonNull(backBackgroundImage, "<wp:BackBackgroundImage>" + escapeXml(backBackgroundImage) + "</wp:BackBackgroundImage>") +
-              ifNonNull(backTitle, "<wp:BackTitle>" + escapeXml(backTitle) + "</wp:BackTitle>") +
-              ifNonNull(backContent, "<wp:BackContent>" + escapeXml(backContent) + "</wp:BackContent>") +
-           "</wp:Tile> " +
-        "</wp:Notification>";
+        String tileMessage = getXmlHead() + getXmlBody() + getXmlTail();
 
         return Utilities.toUTF8(tileMessage);
+    }
+    
+    public String getXmlHead() {
+    	return "<?xml version=\"1.0\" encoding=\"utf-8\"?>" +
+                "<wp:Notification xmlns:wp=\"WPNotification\">" +
+                "<wp:Tile>";
+    }
+    
+    public String getXmlTail() {
+    	return "</wp:Tile> " +
+    	       "</wp:Notification>";
+    }
+    
+    public String getXmlBody() {
+    	return  ifNonNull(backgroundImage, "<wp:BackgroundImage>" + escapeXml(backgroundImage) + "</wp:BackgroundImage>") +
+                "<wp:Count>" + count + "</wp:Count>" +
+                ifNonNull(title, "<wp:Title>" + escapeXml(title) + "</wp:Title>") +
+                ifNonNull(backBackgroundImage, "<wp:BackBackgroundImage>" + escapeXml(backBackgroundImage) + "</wp:BackBackgroundImage>") +
+                ifNonNull(backTitle, "<wp:BackTitle>" + escapeXml(backTitle) + "</wp:BackTitle>") +
+                ifNonNull(backContent, "<wp:BackContent>" + escapeXml(backContent) + "</wp:BackContent>");
     }
 
     public List<? extends Entry<String, String>> getHttpHeaders() {
@@ -92,7 +101,7 @@ public class TileNotification implements MpnsNotification {
         private int count;
 
         public Builder() {
-            super("token"); // TODO: Check whether it is "tile"
+            super("token");
             contentType(Utilities.XML_CONTENT_TYPE);
         }
 
@@ -128,13 +137,7 @@ public class TileNotification implements MpnsNotification {
 
         @Override
         protected int deliveryValueOf(DeliveryClass delivery) {
-            switch (delivery) {
-            case IMMEDIATELY:   return 1;
-            case WITHIN_450:    return 11;
-            case WITHIN_900:    return 21;
-            default:
-                throw new AssertionError("Unknown Value: " + delivery);
-            }
+            return Utilities.getTileDelivery(delivery);
         }
 
         @Override

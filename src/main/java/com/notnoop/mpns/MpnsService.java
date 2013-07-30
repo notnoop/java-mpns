@@ -72,7 +72,7 @@ public interface MpnsService {
      */
     void push(String subscriptionUri, MpnsNotification message)
         throws NetworkIOException;
-
+    
     /**
      * Starts the service.
      *

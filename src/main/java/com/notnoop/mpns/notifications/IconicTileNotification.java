@@ -49,7 +49,7 @@ public class IconicTileNotification implements MpnsNotification {
 	
     private final List<? extends Entry<String, String>> headers;
 
-    public IconicTileNotification(Builder builder, List<? extends Entry<String, String>> headers) {
+    protected IconicTileNotification(Builder builder, List<? extends Entry<String, String>> headers) {
     	this.builder = builder;
     	this.headers = headers;
     }
@@ -142,7 +142,7 @@ public class IconicTileNotification implements MpnsNotification {
             return new IconicTileNotification(this, this.headers);
         }
         
-        public byte[] toByteArray() {
+        protected byte[] toByteArray() {
             StringBuilder sb = new StringBuilder();
             sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             sb.append("<wp:Notification xmlns:wp=\"WPNotification\">");
