@@ -89,15 +89,20 @@ public class MpnsServiceBuilder {
     public static class SecurityInfo {
     	private byte[] cert;
     	private String password;
-    	private SecurityType type;
+    	private String name;
+    	private String provider;
     	
-    	public SecurityInfo(byte[] cert, String password, SecurityType type) {
-    		if( cert == null || cert.length == 0 || password == null || "".equals(password.trim()) ) {
-    			throw new IllegalArgumentException("Please provide certificate and password");
+    	public SecurityInfo(byte[] cert, String password, String securityName, String securityProvider) {
+    		if( cert == null || cert.length == 0 ||
+    				password == null || "".equals(password.trim()) ||
+    				securityName == null || "".equals(securityName.trim()) ) {
+    			// provider is optional
+    			throw new IllegalArgumentException("Please provide certificate, password, and name");
     		}
     		this.cert = Arrays.copyOf(cert, cert.length);
     		this.password = password;
-    		this.type = type;
+    		this.name = securityName;
+    		this.provider = securityProvider;
     	}
     	
     	public byte[] getCert() {
@@ -106,25 +111,9 @@ public class MpnsServiceBuilder {
     	public String getPassword() {
     		return password;
     	}
-    	public SecurityType getType() {
-    		return type;
-    	}
-    }
-    
-    public enum SecurityType {
-    	JKS("JKS", null),
-    	PKCS12("PKCS12", "SunJSSE");
-    	
-    	private String name, provider;
-    	SecurityType(String name, String provider) {
-    		this.name = name;
-    		this.provider = provider;
-    	}
-    	
     	public String getName() {
     		return name;
     	}
-    	
     	public String getProvider() {
     		return provider;
     	}
@@ -263,12 +252,11 @@ public class MpnsServiceBuilder {
         
         if( securityInfo != null ) {
         	try {
-        		SecurityType type = securityInfo.getType();
 	        	KeyStore keyStore = null;
-	        	if( type.getProvider() == null ) {
-	        		keyStore = KeyStore.getInstance(type.getName());
+	        	if( securityInfo.getProvider() == null ) {
+	        		keyStore = KeyStore.getInstance(securityInfo.getName());
 	        	} else {
-	        		keyStore = KeyStore.getInstance(type.getName(), type.getProvider());
+	        		keyStore = KeyStore.getInstance(securityInfo.getName(), securityInfo.getProvider());
 	        	}
 	        	keyStore.load(new ByteArrayInputStream(securityInfo.getCert()),
 	        			securityInfo.getPassword().toCharArray());
