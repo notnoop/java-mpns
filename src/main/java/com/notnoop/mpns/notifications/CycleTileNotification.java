@@ -27,10 +27,13 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * Contributed by vhong
  */
 package com.notnoop.mpns.notifications;
 
 import static com.notnoop.mpns.internal.Utilities.xmlElement;
+import static com.notnoop.mpns.internal.Utilities.xmlElementClear;
 
 import java.util.Collections;
 import java.util.List;
@@ -40,12 +43,13 @@ import com.notnoop.mpns.DeliveryClass;
 import com.notnoop.mpns.MpnsNotification;
 import com.notnoop.mpns.internal.Utilities;
 
-public class TileNotification implements MpnsNotification {
-    private final Builder builder;
-
+public class CycleTileNotification implements MpnsNotification {
+	
+	private final Builder builder;
+	
     private final List<? extends Entry<String, String>> headers;
 
-    public TileNotification(Builder builder, List<? extends Entry<String, String>> headers) {
+    protected CycleTileNotification(Builder builder, List<? extends Entry<String, String>> headers) {
     	this.builder = builder;
     	this.headers = headers;
     }
@@ -57,43 +61,56 @@ public class TileNotification implements MpnsNotification {
     public List<? extends Entry<String, String>> getHttpHeaders() {
         return Collections.unmodifiableList(this.headers);
     }
-    
-    public static class Builder extends AbstractNotificationBuilder<Builder, TileNotification> {
-        private String backgroundImage, title, backBackgroundImage, backTitle, backContent;
+
+    public static class Builder extends AbstractNotificationBuilder<Builder, CycleTileNotification> {
+        
+        private String tileId;
+        
+        private boolean isClear;
+        
+        private String smallBackgroundImage;
+        private String[] cycleImages;
         private int count;
+        private String title;
+        
+        public static final int MAX_IMAGES = 9;
 
         public Builder() {
             super("token");
             contentType(Utilities.XML_CONTENT_TYPE);
+            cycleImages = new String[MAX_IMAGES];
+        }
+        
+        public Builder tileId(String tileId) {
+        	this.tileId = tileId;
+        	return this;
+        }
+        
+        public Builder isClear(boolean clear) {
+        	this.isClear = clear;
+        	return this;
+        }
+        
+        public Builder smallBackgroundImage(String smallBackgroundImage) {
+        	this.smallBackgroundImage = smallBackgroundImage;
+        	return this;
+        }
+        
+        public Builder cycleImage(int index, String imageName) {
+        	if( index >= MAX_IMAGES ) {
+        		throw new IllegalArgumentException("index " + index + " is greater than maximum allowed cycle images of " + MAX_IMAGES);
+        	}
+        	cycleImages[index] = imageName;
+        	return this;
         }
 
-        public Builder backgroundImage(String backgroundImage) {
-            this.backgroundImage = backgroundImage;
+        public Builder count(int count) {
+            this.count = count;
             return this;
         }
 
         public Builder title(String title) {
             this.title = title;
-            return this;
-        }
-
-        public Builder backBackgroundImage(String backBackgroundImage) {
-            this.backBackgroundImage = backBackgroundImage;
-            return this;
-        }
-
-        public Builder backTitle(String backTitle) {
-            this.backTitle = backTitle;
-            return this;
-        }
-
-        public Builder backContent(String backContent) {
-            this.backContent = backContent;
-            return this;
-        }
-
-        public Builder count(int count) {
-            this.count = count;
             return this;
         }
 
@@ -103,21 +120,33 @@ public class TileNotification implements MpnsNotification {
         }
 
         @Override
-        public TileNotification build() {
-            return new TileNotification(this, headers);
+        public CycleTileNotification build() {
+            return new CycleTileNotification(this, this.headers);
         }
         
-        public byte[] toByteArray() {
+        protected byte[] toByteArray() {
             StringBuilder sb = new StringBuilder();
             sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             sb.append("<wp:Notification xmlns:wp=\"WPNotification\">");
-            sb.append("<wp:Tile>");
-            sb.append(xmlElement("BackgroundImage", backgroundImage));
-            sb.append(xmlElement("Count", ""+count));
-            sb.append(xmlElement("Title", title));
-            sb.append(xmlElement("BackBackgroundImage", backBackgroundImage));
-            sb.append(xmlElement("BackTitle", backTitle));
-            sb.append(xmlElement("BackContent", backContent));
+            sb.append("<wp:Tile");
+            if( tileId != null ) {
+                sb.append(" Id=\"");
+                sb.append(tileId);
+                sb.append("\"");
+            }
+            sb.append(" Template=\"CycleTile\">");
+            if( isClear ) {
+            	sb.append(xmlElementClear("SmallBackgroundImage", smallBackgroundImage));
+            } else {
+            	sb.append(xmlElement("SmallBackgroundImage", smallBackgroundImage));
+            }
+            for( int i = 0; i < MAX_IMAGES; i++ ) {
+            	if( cycleImages[i] != null ) {
+                    sb.append(xmlElementClear("CycleImage"+(i+1), cycleImages[i]));
+            	}
+            }
+            sb.append(xmlElementClear("Count", ""+count));
+            sb.append(xmlElementClear("Title", title));
             sb.append("</wp:Tile>");
             sb.append("</wp:Notification>");
 
@@ -125,3 +154,4 @@ public class TileNotification implements MpnsNotification {
         }
     }
 }
+

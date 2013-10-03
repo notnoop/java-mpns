@@ -51,5 +51,5 @@ public interface MpnsNotification {
      * @return the notification identifier
      */
     public List<? extends Entry<String, String>> getHttpHeaders();
-
+    
 }

@@ -30,12 +30,27 @@
  */
 package com.notnoop.mpns;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.CertificateException;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import javax.net.ssl.KeyManager;
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.SSLContext;
 
 import org.apache.http.HttpHost;
 import org.apache.http.client.HttpClient;
 import org.apache.http.conn.params.ConnRoutePNames;
+import org.apache.http.conn.scheme.Scheme;
 import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -67,6 +82,42 @@ public class MpnsServiceBuilder {
     private int timeout = -1;
 
     private MpnsDelegate delegate;
+    
+    // Authenticated calls
+    private SecurityInfo securityInfo;
+    
+    public static class SecurityInfo {
+    	private byte[] cert;
+    	private String password;
+    	private String name;
+    	private String provider;
+    	
+    	public SecurityInfo(byte[] cert, String password, String securityName, String securityProvider) {
+    		if( cert == null || cert.length == 0 ||
+    				password == null || "".equals(password.trim()) ||
+    				securityName == null || "".equals(securityName.trim()) ) {
+    			// provider is optional
+    			throw new IllegalArgumentException("Please provide certificate, password, and name");
+    		}
+    		this.cert = Arrays.copyOf(cert, cert.length);
+    		this.password = password;
+    		this.name = securityName;
+    		this.provider = securityProvider;
+    	}
+    	
+    	public byte[] getCert() {
+    		return cert;
+    	}
+    	public String getPassword() {
+    		return password;
+    	}
+    	public String getName() {
+    		return name;
+    	}
+    	public String getProvider() {
+    		return provider;
+    	}
+    }
 
     /**
      * Constructs a new instance of {@code MpnsServiceBuilder}
@@ -151,6 +202,14 @@ public class MpnsServiceBuilder {
         this.isQueued = true;
         return this;
     }
+    
+    /**
+     * Authenticated
+     */
+    public MpnsServiceBuilder asAuthenticated(SecurityInfo securityInfo) {
+    	this.securityInfo = securityInfo;
+    	return this;
+    }
 
     /**
      * Sets the timeout for the connection
@@ -189,6 +248,33 @@ public class MpnsServiceBuilder {
 
         if (proxy != null) {
             client.getParams().setParameter(ConnRoutePNames.DEFAULT_PROXY, proxy);
+        }
+        
+        if( securityInfo != null ) {
+        	try {
+	        	KeyStore keyStore = null;
+	        	if( securityInfo.getProvider() == null ) {
+	        		keyStore = KeyStore.getInstance(securityInfo.getName());
+	        	} else {
+	        		keyStore = KeyStore.getInstance(securityInfo.getName(), securityInfo.getProvider());
+	        	}
+	        	keyStore.load(new ByteArrayInputStream(securityInfo.getCert()),
+	        			securityInfo.getPassword().toCharArray());
+	        				
+	        	KeyManagerFactory kmfactory = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
+	        	kmfactory.init(keyStore, securityInfo.getPassword().toCharArray());
+	        	KeyManager[] km = kmfactory.getKeyManagers();
+	
+	        	// create SSL socket factory
+	        	SSLContext sslContext = SSLContext.getInstance("TLS");
+	        	sslContext.init(km, null, null);
+	        	org.apache.http.conn.ssl.SSLSocketFactory sslSocketFactory = new org.apache.http.conn.ssl.SSLSocketFactory(sslContext);
+	     
+	        	Scheme https = new Scheme("https", 443, sslSocketFactory);
+	        	client.getConnectionManager().getSchemeRegistry().register(https);
+        	} catch( Exception e ) {
+        		throw new IllegalArgumentException(e);
+        	}
         }
 
         if (timeout > 0) {

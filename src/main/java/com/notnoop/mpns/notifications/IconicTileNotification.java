@@ -27,10 +27,13 @@
  * THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ * 
+ * Contributed by vhong
  */
 package com.notnoop.mpns.notifications;
 
 import static com.notnoop.mpns.internal.Utilities.xmlElement;
+import static com.notnoop.mpns.internal.Utilities.xmlElementClear;
 
 import java.util.Collections;
 import java.util.List;
@@ -40,12 +43,13 @@ import com.notnoop.mpns.DeliveryClass;
 import com.notnoop.mpns.MpnsNotification;
 import com.notnoop.mpns.internal.Utilities;
 
-public class TileNotification implements MpnsNotification {
-    private final Builder builder;
-
+public class IconicTileNotification implements MpnsNotification {
+	
+	private final Builder builder;
+	
     private final List<? extends Entry<String, String>> headers;
 
-    public TileNotification(Builder builder, List<? extends Entry<String, String>> headers) {
+    protected IconicTileNotification(Builder builder, List<? extends Entry<String, String>> headers) {
     	this.builder = builder;
     	this.headers = headers;
     }
@@ -57,18 +61,64 @@ public class TileNotification implements MpnsNotification {
     public List<? extends Entry<String, String>> getHttpHeaders() {
         return Collections.unmodifiableList(this.headers);
     }
-    
-    public static class Builder extends AbstractNotificationBuilder<Builder, TileNotification> {
-        private String backgroundImage, title, backBackgroundImage, backTitle, backContent;
+
+    public static class Builder extends AbstractNotificationBuilder<Builder, IconicTileNotification> {
+        
+        private String tileId;
+        
+        private boolean isClear;
+        
+        private String smallIconImage;
+        private String iconImage;
+        private String wideContent1;
+        private String wideContent2;
+        private String wideContent3;
         private int count;
+        private String title;
+        private String backgroundColor;
 
         public Builder() {
             super("token");
             contentType(Utilities.XML_CONTENT_TYPE);
         }
+        
+        public Builder tileId(String tileId) {
+        	this.tileId = tileId;
+        	return this;
+        }
+        
+        public Builder isClear(boolean clear) {
+        	this.isClear = clear;
+        	return this;
+        }
 
-        public Builder backgroundImage(String backgroundImage) {
-            this.backgroundImage = backgroundImage;
+        public Builder smallIconImage(String smallIconImage) {
+            this.smallIconImage = smallIconImage;
+            return this;
+        }
+
+        public Builder iconImage(String iconImage) {
+            this.iconImage = iconImage;
+            return this;
+        }
+
+        public Builder wideContent1(String wideContent1) {
+            this.wideContent1 = wideContent1;
+            return this;
+        }
+
+        public Builder wideContent2(String wideContent2) {
+            this.wideContent2 = wideContent2;
+            return this;
+        }
+
+        public Builder wideContent3(String wideContent3) {
+            this.wideContent3 = wideContent3;
+            return this;
+        }
+
+        public Builder count(int count) {
+            this.count = count;
             return this;
         }
 
@@ -77,23 +127,8 @@ public class TileNotification implements MpnsNotification {
             return this;
         }
 
-        public Builder backBackgroundImage(String backBackgroundImage) {
-            this.backBackgroundImage = backBackgroundImage;
-            return this;
-        }
-
-        public Builder backTitle(String backTitle) {
-            this.backTitle = backTitle;
-            return this;
-        }
-
-        public Builder backContent(String backContent) {
-            this.backContent = backContent;
-            return this;
-        }
-
-        public Builder count(int count) {
-            this.count = count;
+        public Builder backgroundColor(String backgroundColor) {
+            this.backgroundColor = backgroundColor;
             return this;
         }
 
@@ -103,21 +138,33 @@ public class TileNotification implements MpnsNotification {
         }
 
         @Override
-        public TileNotification build() {
-            return new TileNotification(this, headers);
+        public IconicTileNotification build() {
+            return new IconicTileNotification(this, this.headers);
         }
         
-        public byte[] toByteArray() {
+        protected byte[] toByteArray() {
             StringBuilder sb = new StringBuilder();
             sb.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>");
             sb.append("<wp:Notification xmlns:wp=\"WPNotification\">");
-            sb.append("<wp:Tile>");
-            sb.append(xmlElement("BackgroundImage", backgroundImage));
-            sb.append(xmlElement("Count", ""+count));
-            sb.append(xmlElement("Title", title));
-            sb.append(xmlElement("BackBackgroundImage", backBackgroundImage));
-            sb.append(xmlElement("BackTitle", backTitle));
-            sb.append(xmlElement("BackContent", backContent));
+            sb.append("<wp:Tile");
+            if( tileId != null ) {
+                sb.append(" Id=\"");
+                sb.append(tileId);
+                sb.append("\"");
+            }
+            sb.append(" Template=\"IconicTile\">");
+            if( isClear ) {
+            	sb.append(xmlElementClear("SmallIconImage", smallIconImage));
+            } else {
+            	sb.append(xmlElement("SmallIconImage", smallIconImage));
+            }
+            sb.append(xmlElementClear("IconImage", iconImage));
+            sb.append(xmlElementClear("WideContent1", wideContent1));
+            sb.append(xmlElementClear("WideContent2", wideContent2));
+            sb.append(xmlElementClear("WideContent3", wideContent3));
+            sb.append(xmlElementClear("Count", ""+count));
+            sb.append(xmlElementClear("Title", title));
+            sb.append(xmlElementClear("BackgroundColor", backgroundColor));
             sb.append("</wp:Tile>");
             sb.append("</wp:Notification>");
 
@@ -125,3 +172,4 @@ public class TileNotification implements MpnsNotification {
         }
     }
 }
+
