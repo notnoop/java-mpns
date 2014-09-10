@@ -110,7 +110,7 @@ public class ToastNotification implements MpnsNotification {
         	sb.append(xmlElement("Text1", title));
         	sb.append(xmlElement("Text2", subtitle));
         	sb.append(xmlElement("Param", parameter));
-            sb.append("</wp:Tile>");
+            sb.append("</wp:Toast>");
             sb.append("</wp:Notification>");
             
             return Utilities.toUTF8(sb.toString());
