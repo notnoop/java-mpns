@@ -32,16 +32,16 @@
  */
 package org.jboss.aerogeaer.windows.mpns.notifications;
 
-import static org.jboss.aerogeaer.windows.mpns.internal.Utilities.xmlElement;
-import static org.jboss.aerogeaer.windows.mpns.internal.Utilities.xmlElementClear;
+import org.jboss.aerogeaer.windows.mpns.DeliveryClass;
+import org.jboss.aerogeaer.windows.mpns.MpnsNotification;
+import org.jboss.aerogeaer.windows.mpns.internal.Utilities;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.jboss.aerogeaer.windows.mpns.DeliveryClass;
-import org.jboss.aerogeaer.windows.mpns.MpnsNotification;
-import org.jboss.aerogeaer.windows.mpns.internal.Utilities;
+import static org.jboss.aerogeaer.windows.mpns.internal.Utilities.xmlElement;
+import static org.jboss.aerogeaer.windows.mpns.internal.Utilities.xmlElementClear;
 
 public class CycleTileNotification implements MpnsNotification {
 	
@@ -69,7 +69,7 @@ public class CycleTileNotification implements MpnsNotification {
         private boolean isClear;
         
         private String smallBackgroundImage;
-        private String[] cycleImages;
+        private final String[] cycleImages;
         private int count;
         private String title;
         

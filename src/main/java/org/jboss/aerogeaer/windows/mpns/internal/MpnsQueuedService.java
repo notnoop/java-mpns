@@ -27,9 +27,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class MpnsQueuedService extends AbstractMpnsService implements MpnsService {
 
-    private AbstractMpnsService service;
-    private BlockingQueue<Pair<HttpPost, MpnsNotification>> queue;
-    private AtomicBoolean started = new AtomicBoolean(false);
+    private final AbstractMpnsService service;
+    private final BlockingQueue<Pair<HttpPost, MpnsNotification>> queue;
+    private final AtomicBoolean started = new AtomicBoolean(false);
 
     public MpnsQueuedService(AbstractMpnsService service) {
         this.service = service;

@@ -30,15 +30,15 @@
  */
 package org.jboss.aerogeaer.windows.mpns.notifications;
 
-import static org.jboss.aerogeaer.windows.mpns.internal.Utilities.xmlElement;
+import org.jboss.aerogeaer.windows.mpns.DeliveryClass;
+import org.jboss.aerogeaer.windows.mpns.MpnsNotification;
+import org.jboss.aerogeaer.windows.mpns.internal.Utilities;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.jboss.aerogeaer.windows.mpns.DeliveryClass;
-import org.jboss.aerogeaer.windows.mpns.MpnsNotification;
-import org.jboss.aerogeaer.windows.mpns.internal.Utilities;
+import static org.jboss.aerogeaer.windows.mpns.internal.Utilities.xmlElement;
 
 public class TileNotification implements MpnsNotification {
     private final Builder builder;

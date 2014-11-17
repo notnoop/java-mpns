@@ -17,10 +17,10 @@
 
 package org.jboss.aerogeaer.windows.mpns;
 
+import org.jboss.aerogeaer.windows.mpns.exceptions.NetworkIOException;
+
 import java.util.Collection;
 import java.util.Map;
-
-import org.jboss.aerogeaer.windows.mpns.exceptions.NetworkIOException;
 
 /**
  * Represents the connection and interface to the Microsoft MPNS servers.
@@ -28,8 +28,7 @@ import org.jboss.aerogeaer.windows.mpns.exceptions.NetworkIOException;
  * The service is created by {@link MpnsServiceBuilder} like:
  *
  * <pre>
- *   MpnsService service = MPNS.newService()
- *                  .build()
+ *   MpnsService service = MPNS.newService().build()
  * </pre>
  */
 public interface MpnsService {
@@ -39,12 +38,12 @@ public interface MpnsService {
      * iPhone of {@code deviceToken}.
      *
      * The payload needs to be a valid JSON object, otherwise it may fail
-     * silently.  It is recommended to use {@link PayloadBuilder} to create
+     * silently.  It is recommended to use {@link MpnsServiceBuilder} to create
      * one.
      *
-     * @param deviceToken   the destination iPhone device token
+     * @param subscriptionUri   the destination
      * @param payload       The payload message
-     * @throws NetworkIOException if a network error occured while
+     * @throws NetworkIOException if a network error occurred while
      *      attempting to send the message
      */
     void push(String subscriptionUri, String payload,
@@ -54,7 +53,7 @@ public interface MpnsService {
     /**
      * Sends the provided notification {@code message} to the desired
      * destination.
-     * @throws NetworkIOException if a network error occured while
+     * @throws NetworkIOException if a network error occurred while
      *      attempting to send the message
      */
     void push(String subscriptionUri, MpnsNotification message)
@@ -64,7 +63,7 @@ public interface MpnsService {
      * Starts the service.
      *
      * The underlying implementation may prepare its connections or
-     * datastructures to be able to send the messages.
+     * data structures to be able to send the messages.
      *
      * This method is a blocking call, even if the service represents
      * a Non-blocking push service.  Once the service is returned, it is ready

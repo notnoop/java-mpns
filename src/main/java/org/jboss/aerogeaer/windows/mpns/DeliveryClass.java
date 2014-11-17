@@ -41,5 +41,5 @@ public enum DeliveryClass {
      * Indicates that the push notification should be delivered within 900
      * seconds (15 minutes)
      */
-    WITHIN_900;
+    WITHIN_900
 }

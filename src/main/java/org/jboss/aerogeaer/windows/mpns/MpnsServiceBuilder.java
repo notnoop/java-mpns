@@ -230,7 +230,7 @@ public class MpnsServiceBuilder {
         
         if( securityInfo != null ) {
         	try {
-	        	KeyStore keyStore = null;
+	        	KeyStore keyStore;
 	        	if( securityInfo.getProvider() == null ) {
 	        		keyStore = KeyStore.getInstance(securityInfo.getName());
 	        	} else {

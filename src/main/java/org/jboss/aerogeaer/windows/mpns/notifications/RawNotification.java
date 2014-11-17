@@ -30,13 +30,13 @@
  */
 package org.jboss.aerogeaer.windows.mpns.notifications;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map.Entry;
-
 import org.jboss.aerogeaer.windows.mpns.DeliveryClass;
 import org.jboss.aerogeaer.windows.mpns.MpnsNotification;
 import org.jboss.aerogeaer.windows.mpns.internal.Utilities;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map.Entry;
 
 public class RawNotification implements MpnsNotification {
     private final byte[] body;
@@ -73,7 +73,7 @@ public class RawNotification implements MpnsNotification {
         public Builder body(byte[] body) {
             byte[] copy = new byte[body.length];
             System.arraycopy(body, 0, copy, 0, body.length);
-            this.body = body;
+            this.body = copy;
             return this;
         }
 

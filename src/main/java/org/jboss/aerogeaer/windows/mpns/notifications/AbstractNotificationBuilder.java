@@ -30,13 +30,13 @@
  */
 package org.jboss.aerogeaer.windows.mpns.notifications;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map.Entry;
-
 import org.jboss.aerogeaer.windows.mpns.DeliveryClass;
 import org.jboss.aerogeaer.windows.mpns.MpnsNotification;
 import org.jboss.aerogeaer.windows.mpns.internal.Pair;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map.Entry;
 
 /**
  * An abstract notification builder for the common header settings
@@ -46,7 +46,7 @@ import org.jboss.aerogeaer.windows.mpns.internal.Pair;
  */
 @SuppressWarnings("unchecked")
 /*package-protected*/ abstract class AbstractNotificationBuilder<A extends AbstractNotificationBuilder<A, B>, B extends MpnsNotification> {
-    protected List<Entry<String, String>> headers = new ArrayList<Entry<String, String>>();
+    protected final List<Entry<String, String>> headers = new ArrayList<Entry<String, String>>();
 
     protected AbstractNotificationBuilder() {
     }

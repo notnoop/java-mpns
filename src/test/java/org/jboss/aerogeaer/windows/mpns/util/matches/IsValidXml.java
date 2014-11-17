@@ -25,6 +25,7 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
 import java.io.ByteArrayInputStream;
+import java.io.UnsupportedEncodingException;
 
 public class IsValidXml extends BaseMatcher<Object> {
 
@@ -46,7 +47,8 @@ public class IsValidXml extends BaseMatcher<Object> {
         } catch (Exception e) {
             try {
                 System.out.println(new String(in, "UTF8"));
-            } catch (Exception e1) {
+            } catch (UnsupportedEncodingException e1) {
+                throw new RuntimeException("No UTF8 encoded bytes", e1);
             }
             return false;
         }

@@ -33,7 +33,7 @@ public final class Utilities {
     /**
      * The content type "text/xml"
      */
-    public static String XML_CONTENT_TYPE = "text/xml";
+    public static final String XML_CONTENT_TYPE = "text/xml";
 
     public static ThreadSafeClientConnManager poolManager(int maxConnections) {
         ThreadSafeClientConnManager cm = new ThreadSafeClientConnManager();
@@ -44,7 +44,7 @@ public final class Utilities {
     }
 
     /**
-     * Returns {@cond value} is the {@code cond} is non-null; otherwise
+     * Returns {@code value} is the {@code cond} is non-null; otherwise
      * returns an empty String.
      */
     public static String ifNonNull(Object cond, String value) {
@@ -109,9 +109,9 @@ public final class Utilities {
         return header == null ? null: header.getValue();
     }
 
-    private static MpnsResponse[] logicalResponses = MpnsResponse.values();
+    private static final MpnsResponse[] LOGICAL_RESPONSES = MpnsResponse.values();
     public static MpnsResponse logicalResponseFor(HttpResponse response) {
-        for (MpnsResponse r: logicalResponses) {
+        for (MpnsResponse r: LOGICAL_RESPONSES) {
             if (r.getResponseCode() != response.getStatusLine().getStatusCode()) {
                 continue;
             }

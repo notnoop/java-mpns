@@ -20,8 +20,8 @@ package org.jboss.aerogeaer.windows.mpns;
 /**
  * The main class to interact with the MPNS Service.
  *
- * Provides an interface to create the {@link ApnsServiceBuilder} and
- * {@code ApnsNotification} payload.
+ * Provides an interface to create the {@link MpnsNotificationBuilder} and
+ * {@link MpnsNotification} payload.
  *
  */
 public class MPNS {
