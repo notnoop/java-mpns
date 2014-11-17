@@ -15,11 +15,19 @@
     -->
 
     <scm>
-        <connection>scm:git:git://github.com/notnoop/java-mpns.git</connection>
-        <developerConnection>scm:git:git@github.com:notnoop/java-mpns.git</developerConnection>
-        <url>http://github.com/notnoop/java-mpns</url>
+        <connection>scm:git:git://github.com/aerogear/java-mpns.git</connection>
+        <developerConnection>scm:git:git@github.com:aerogear/java-mpns.git</developerConnection>
+        <url>http://github.com/aerogear/java-mpns</url>
     </scm>
 
+   <licenses>
+      <license>
+         <name>The Apache Software License, Version 2.0</name>
+         <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+         <distribution>repo</distribution>
+      </license>
+   </licenses>
+    
     <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -182,14 +190,7 @@
         Library to send Microsoft Push Notification.
     </description>
 
-    <licenses>
-        <license>
-            <name>New BSD License</name>
-            <url>http://www.opensource.org/licenses/bsd-license.php</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-
+    
     <reporting>
       <plugins>
         <plugin>
@@ -237,6 +238,10 @@
             <id>notnoop</id>
             <name>Mahmood Ali</name>
         </developer>
+        <developer>
+            <id>edewit</id>
+            <name>Erik Jan de Wit</name>
+        </developer>        
     </developers>
 
 </project>
