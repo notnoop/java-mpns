@@ -24,11 +24,18 @@ import org.jboss.aerogear.windows.mpns.DeliveryClass;
 import org.jboss.aerogear.windows.mpns.MpnsDelegate;
 import org.jboss.aerogear.windows.mpns.MpnsNotification;
 import org.jboss.aerogear.windows.mpns.MpnsResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.UnsupportedEncodingException;
 
 public final class Utilities {
-    private Utilities() { throw new AssertionError("Uninstantiable class"); }
+
+    private static final Logger LOG = LoggerFactory.getLogger(Utilities.class);
+
+    private Utilities() {
+        throw new AssertionError("Uninstantiable class");
+    }
 
     /**
      * The content type "text/xml"
@@ -50,28 +57,28 @@ public final class Utilities {
     public static String ifNonNull(Object cond, String value) {
         return cond != null ? value : "";
     }
-    
+
     public static String xmlElement(String name, String content) {
-    	return xmlElement(name, content, false);
+        return xmlElement(name, content, false);
     }
-    
+
     public static String xmlElementClear(String name, String content) {
-    	return xmlElement(name, content, true);
+        return xmlElement(name, content, true);
     }
-    
+
     private static String xmlElement(String name, String content, boolean isClear) {
-    	if( content == null || "".equals(content.trim())) {
-    		return "";
-    	}
-    	StringBuilder sb = new StringBuilder(500);
-    	sb.append("<wp:").append(name);
-    	if( isClear ) {
-    		sb.append(" Action=\"Clear\"");
-    	}
-		sb.append(">");
-    	sb.append(escapeXml(content));
-    	sb.append("</wp:").append(name).append(">");
-    	return sb.toString();
+        if (content == null || "".equals(content.trim())) {
+            return "";
+        }
+        StringBuilder sb = new StringBuilder(500);
+        sb.append("<wp:").append(name);
+        if (isClear) {
+            sb.append(" Action=\"Clear\"");
+        }
+        sb.append(">");
+        sb.append(escapeXml(content));
+        sb.append("</wp:").append(name).append(">");
+        return sb.toString();
     }
 
     public static String escapeXml(String value) {
@@ -83,12 +90,23 @@ public final class Utilities {
         for (int i = 0; i < value.length(); ++i) {
             char ch = value.charAt(i);
             switch (ch) {
-            case '&': sb.append("&amp;"); break;
-            case '<': sb.append("&lt;"); break;
-            case '>': sb.append("&gt;"); break;
-            case '"': sb.append("&quot;"); break;
-            case '\'': sb.append("&apos;"); break;
-            default: sb.append(ch);
+                case '&':
+                    sb.append("&amp;");
+                    break;
+                case '<':
+                    sb.append("&lt;");
+                    break;
+                case '>':
+                    sb.append("&gt;");
+                    break;
+                case '"':
+                    sb.append("&quot;");
+                    break;
+                case '\'':
+                    sb.append("&apos;");
+                    break;
+                default:
+                    sb.append(ch);
             }
         }
 
@@ -106,28 +124,29 @@ public final class Utilities {
     private static String headerValue(HttpResponse response, String name) {
         Header header = response.getFirstHeader(name);
 
-        return header == null ? null: header.getValue();
+        return header == null ? null : header.getValue();
     }
 
     private static final MpnsResponse[] LOGICAL_RESPONSES = MpnsResponse.values();
+
     public static MpnsResponse logicalResponseFor(HttpResponse response) {
-        for (MpnsResponse r: LOGICAL_RESPONSES) {
+        for (MpnsResponse r : LOGICAL_RESPONSES) {
             if (r.getResponseCode() != response.getStatusLine().getStatusCode()) {
                 continue;
             }
 
             if (r.getNotificationStatus() != null
-                && !r.getNotificationStatus().equals(headerValue(response, "X-NotificationStatus"))) {
+                    && !r.getNotificationStatus().equals(headerValue(response, "X-NotificationStatus"))) {
                 continue;
             }
 
             if (r.getDeviceConnectionStatus() != null
-                && !r.getDeviceConnectionStatus().equals(headerValue(response, "X-DeviceConnectionStatus"))) {
+                    && !r.getDeviceConnectionStatus().equals(headerValue(response, "X-DeviceConnectionStatus"))) {
                 continue;
             }
 
             if (r.getSubscriptionStatus() != null
-                && !r.getSubscriptionStatus().equals(headerValue(response, "X-SubscriptionStatus"))) {
+                    && !r.getSubscriptionStatus().equals(headerValue(response, "X-SubscriptionStatus"))) {
                 continue;
             }
 
@@ -135,8 +154,12 @@ public final class Utilities {
         }
 
         // Didn't find anything
-        assert false;
-        return null;
+        LOG.error("Unmatched error code - Notification status: " + headerValue(response, "X-NotificationStatus")
+                + ", Connection status: " + headerValue(response, "X-DeviceConnectionStatus") + ", Subscription status: "
+                + headerValue(response, "X-SubscriptionStatus") + ", Status code: "
+                + Integer.toString(response.getStatusLine().getStatusCode()));
+
+        return MpnsResponse.UNDEFINED;
     }
 
     public static void fireDelegate(MpnsNotification message, HttpResponse response, MpnsDelegate delegate) {
@@ -150,16 +173,20 @@ public final class Utilities {
             }
         }
     }
-    
+
     public static int getTileDelivery(DeliveryClass delivery) {
-    	if( delivery == null ) {
-    		delivery = DeliveryClass.IMMEDIATELY;
-    	}
+        if (delivery == null) {
+            delivery = DeliveryClass.IMMEDIATELY;
+        }
         switch (delivery) {
-        case IMMEDIATELY:   return 1;
-        case WITHIN_450:    return 11;
-        case WITHIN_900:    return 21;
-        default:            return 1; // IMMEDIATELY is the default
+            case IMMEDIATELY:
+                return 1;
+            case WITHIN_450:
+                return 11;
+            case WITHIN_900:
+                return 21;
+            default:
+                return 1; // IMMEDIATELY is the default
         }
     }
 }
